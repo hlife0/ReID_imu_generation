@@ -10,15 +10,12 @@ class RepositorySkeletonTest(unittest.TestCase):
         expected_directories = [
             "src",
             "scripts",
-            "experiments",
-            "data/raw",
-            "data/reference",
-            "data/interim",
-            "data/processed",
+            "scripts/totalcapture_test",
+            "data",
             "outputs",
             "tests",
             "docs",
-            "notebooks",
+            "third-party",
         ]
         for relative_path in expected_directories:
             with self.subTest(path=relative_path):
@@ -28,17 +25,13 @@ class RepositorySkeletonTest(unittest.TestCase):
         expected_files = [
             "README.md",
             ".gitignore",
-            "src/motion_io.py",
-            "src/frames.py",
-            "src/alignment.py",
-            "src/metrics.py",
             "src/totalcapture_test.py",
-            "scripts/generate_imu.py",
-            "scripts/inspect_case.py",
-            "scripts/evaluate_signals.py",
             "scripts/totalcapture_test/prepare_sample.py",
-            "experiments/README.md",
+            "scripts/totalcapture_test/synthesize_imu.py",
+            "scripts/totalcapture_test/plot_imu_comparison.py",
             "docs/pipeline_overview.md",
+            "docs/repo_conventions.md",
+            "third-party/README.md",
         ]
         for relative_path in expected_files:
             with self.subTest(path=relative_path):

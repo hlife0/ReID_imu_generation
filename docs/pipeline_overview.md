@@ -19,7 +19,7 @@ Within this repository, `mocap`, `Vicon`, and `IMU` are treated as already-store
 
 - `data/interim/`: serialized intermediate states and cached pipeline outputs
 - `outputs/`: plots, metrics, logs, and experiment summaries
-- `scripts/inspect_case.py`: targeted single-case inspection entry point
+- `scripts/totalcapture_test/plot_imu_comparison.py`: current comparison entry point
 
 ## Initial design principle
 

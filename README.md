@@ -42,18 +42,14 @@ See `docs/repo_conventions.md` for the explicit repository convention.
 
 ```text
 repo/
-├── src/                # Reusable research logic
-├── scripts/            # Runnable entry points
-├── experiments/        # Experiment-specific notes or configs
-├── data/
-│   ├── raw/            # Original motion/body inputs
-│   ├── reference/      # Real IMU or other evaluation references
-│   ├── interim/        # Inspectable intermediate results
-│   └── processed/      # Reusable processed outputs
-├── outputs/            # Plots, metrics, tables, logs, run artifacts
-├── tests/              # Lightweight validation checks
-├── docs/               # Method notes and conventions
-└── notebooks/          # Optional exploratory analysis
+├── src/                        # Reusable research logic
+├── scripts/                    # Runnable entry points
+│   └── totalcapture_test/      # Current concrete workflow
+├── data/                       # Ignored runtime data and references
+├── outputs/                    # Plots and run artifacts
+├── tests/                      # Lightweight validation checks
+├── docs/                       # Method notes and conventions
+└── third-party/                # External reference repositories
 ```
 
 ## Suggested Workflow
@@ -65,14 +61,10 @@ repo/
 5. Save intermediate pipeline states under `data/interim`.
 6. Save figures, metrics, and run-specific outputs under `outputs/`.
 
-## First Files To Extend
+## Current Primary Files
 
-- `src/motion_io.py`
-- `src/frames.py`
-- `src/alignment.py`
-- `src/metrics.py`
 - `src/totalcapture_test.py`
-- `scripts/generate_imu.py`
-- `scripts/inspect_case.py`
-- `scripts/evaluate_signals.py`
 - `scripts/totalcapture_test/prepare_sample.py`
+- `scripts/totalcapture_test/synthesize_imu.py`
+- `scripts/totalcapture_test/plot_imu_comparison.py`
+- `docs/repo_conventions.md`
