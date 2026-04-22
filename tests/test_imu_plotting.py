@@ -12,7 +12,7 @@ class ImuPlottingTest(unittest.TestCase):
         path.write_text(
             "\n".join(
                 [
-                    "frame_idx,quat0,quat1,quat2,quat3,acc_x,acc_y,acc_z",
+                    "frame_idx,quat0,quat1,quat2,quat3,acc_x,acc_y,acc_z,gyro_x,gyro_y,gyro_z,mag_x,mag_y,mag_z",
                     *rows,
                 ]
             )
@@ -33,17 +33,17 @@ class ImuPlottingTest(unittest.TestCase):
             self._write_csv(
                 real_csv,
                 [
-                    "1,1,0,0,0,0,0,1",
-                    "2,1,0,0,0,0,1,0",
-                    "3,1,0,0,0,1,0,0",
+                    "1,1,0,0,0,0,0,1,0.1,0.2,0.3,0.4,0.5,0.6",
+                    "2,1,0,0,0,0,1,0,0.7,0.8,0.9,1.0,1.1,1.2",
+                    "3,1,0,0,0,1,0,0,1.3,1.4,1.5,1.6,1.7,1.8",
                 ],
             )
             self._write_csv(
                 synthetic_csv,
                 [
-                    "1,0.9,0.1,0,0,0,0,0.8",
-                    "2,0.9,0.1,0,0,0,0.8,0",
-                    "3,0.9,0.1,0,0,0.8,0,0",
+                    "1,0.9,0.1,0,0,0,0,0.8,0.2,0.3,0.4,0.5,0.6,0.7",
+                    "2,0.9,0.1,0,0,0,0.8,0,0.8,0.9,1.0,1.1,1.2,1.3",
+                    "3,0.9,0.1,0,0,0.8,0,0,1.4,1.5,1.6,1.7,1.8,1.9",
                 ],
             )
 

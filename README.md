@@ -1,14 +1,28 @@
 # Synthetic IMU Research Repository
 
-This repository is a lightweight, script-first workspace for synthetic IMU research from structured human motion data such as SMPL-X, mocap, or equivalent body-motion representations.
+This repository is a lightweight, script-first workspace for synthetic IMU research from structured human motion data such as SMPL-X, mocap, Vicon, and equivalent body-motion representations.
 
-The repository is intentionally organized to make the generation pipeline transparent and inspectable rather than black-boxed. The goal is to support:
+The repository is intentionally organized to make the generation pipeline transparent and inspectable rather than black-boxed.
 
-- synthetic IMU generation from motion or body data
-- inspection of intermediate computations and assumptions
-- analysis and evaluation against reference targets
-- method improvement through alignment, filtering, calibration, and noise design
-- ablations, comparisons, plots, and metrics
+## Current Implemented Workflow
+
+The repository currently contains one concrete, fully wired example workflow built around `TotalCapture`.
+
+Implemented path:
+
+1. stage one `TotalCapture` sample into `data/processed/totalcapture_test/...`
+2. keep exactly three processed sample files:
+   - one raw video `.mp4`
+   - one real single-sensor IMU `.csv`
+   - one `SMPL-X` body-motion `.npz`
+3. synthesize a matching single-sensor IMU sequence from `SMPL-X`
+4. compare real and synthetic IMU with an overlay plot
+
+Current entry points:
+
+- `scripts/totalcapture_test/prepare_sample.py`
+- `scripts/totalcapture_test/synthesize_imu.py`
+- `scripts/totalcapture_test/plot_imu_comparison.py`
 
 ## Working Principles
 
@@ -42,24 +56,24 @@ See `docs/repo_conventions.md` for the explicit repository convention.
 
 ```text
 repo/
-├── src/                        # Reusable research logic
-├── scripts/                    # Runnable entry points
-│   └── totalcapture_test/      # Current concrete workflow
+├── src/                        # Current reusable project logic
+├── scripts/
+│   └── totalcapture_test/      # TotalCapture test workflow entry points
 ├── data/                       # Ignored runtime data and references
 ├── outputs/                    # Plots and run artifacts
 ├── tests/                      # Lightweight validation checks
-├── docs/                       # Method notes and conventions
+├── docs/                       # Current workflow docs and background notes
 └── third-party/                # External reference repositories
 ```
 
-## Suggested Workflow
+## Current Data Products
 
-1. Put motion or body data under `data/raw/`.
-2. Place reference targets for evaluation under `data/reference/`.
-3. Implement reusable synthesis and evaluation logic under `src/`.
-4. Call that logic from `scripts/` for generation, inspection, and evaluation.
-5. Save intermediate pipeline states under `data/interim`.
-6. Save figures, metrics, and run-specific outputs under `outputs/`.
+- `data/processed/totalcapture_test/S1_freestyle3/`
+  - staged three-file sample
+- `data/interim/totalcapture_test/S1_freestyle3/`
+  - synthetic IMU derived from the staged `SMPL-X`
+- `outputs/totalcapture_test/S1_freestyle3/`
+  - real vs synthetic comparison plots
 
 ## Current Primary Files
 
@@ -67,4 +81,5 @@ repo/
 - `scripts/totalcapture_test/prepare_sample.py`
 - `scripts/totalcapture_test/synthesize_imu.py`
 - `scripts/totalcapture_test/plot_imu_comparison.py`
+- `docs/totalcapture_test_workflow.md`
 - `docs/repo_conventions.md`

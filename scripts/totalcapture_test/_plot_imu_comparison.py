@@ -11,7 +11,21 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-FIELDS = ["quat0", "quat1", "quat2", "quat3", "acc_x", "acc_y", "acc_z"]
+FIELDS = [
+    "quat0",
+    "quat1",
+    "quat2",
+    "quat3",
+    "acc_x",
+    "acc_y",
+    "acc_z",
+    "gyro_x",
+    "gyro_y",
+    "gyro_z",
+    "mag_x",
+    "mag_y",
+    "mag_z",
+]
 
 
 def parse_args() -> argparse.Namespace:
@@ -35,7 +49,7 @@ def main() -> None:
     real = load_csv(args.real_csv)
     synthetic = load_csv(args.synthetic_csv)
 
-    fig, axes = plt.subplots(len(FIELDS), 1, figsize=(14, 16), sharex=True)
+    fig, axes = plt.subplots(len(FIELDS), 1, figsize=(14, 26), sharex=True)
     fig.suptitle(args.title)
     for axis, field in zip(axes, FIELDS):
         axis.plot(real["frame_idx"], real[field], label="real", linewidth=1.2)

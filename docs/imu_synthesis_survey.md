@@ -1,6 +1,6 @@
 # IMU Synthesis Methods and Reference Repositories
 
-This note summarizes several open-source references that are directly useful for building a transparent synthetic IMU generation pipeline from structured human motion data.
+This note is a background reference survey. It is not a description of the current repository implementation. The current implemented workflow is documented in `docs/totalcapture_test_workflow.md`.
 
 ## Main takeaway
 

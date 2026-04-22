@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -19,6 +20,8 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     helper = Path(__file__).resolve().parent / "_plot_imu_comparison.py"
+    env = os.environ.copy()
+    env.setdefault("MPLCONFIGDIR", "/tmp/matplotlib-totalcapture-test")
     completed = subprocess.run(
         [
             args.plot_python,
@@ -34,6 +37,7 @@ def main() -> None:
         ],
         capture_output=True,
         text=True,
+        env=env,
     )
     if completed.returncode != 0:
         raise SystemExit(completed.stderr or completed.stdout or "plot helper failed")

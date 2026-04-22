@@ -94,12 +94,31 @@ def main() -> None:
         fps=float(data["mocap_frame_rate"]),
     )
     acc = simulator.get_acceleration(gW=(0.0, -9.8, 0.0)).cpu().numpy().astype(np.float32)
+    gyro = simulator.get_angular_velocity().cpu().numpy().astype(np.float32)
+    mag = simulator.get_magnetic_field(mW=(1.0, 0.0, 0.0)).cpu().numpy().astype(np.float32)
 
     output_path = Path(args.output_csv)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-        writer.writerow(["frame_idx", "quat0", "quat1", "quat2", "quat3", "acc_x", "acc_y", "acc_z"])
+        writer.writerow(
+            [
+                "frame_idx",
+                "quat0",
+                "quat1",
+                "quat2",
+                "quat3",
+                "acc_x",
+                "acc_y",
+                "acc_z",
+                "gyro_x",
+                "gyro_y",
+                "gyro_z",
+                "mag_x",
+                "mag_y",
+                "mag_z",
+            ]
+        )
         for idx in range(acc.shape[0]):
             writer.writerow(
                 [
@@ -111,6 +130,12 @@ def main() -> None:
                     f"{acc[idx, 0]:.6f}",
                     f"{acc[idx, 1]:.6f}",
                     f"{acc[idx, 2]:.6f}",
+                    f"{gyro[idx, 0]:.6f}",
+                    f"{gyro[idx, 1]:.6f}",
+                    f"{gyro[idx, 2]:.6f}",
+                    f"{mag[idx, 0]:.6f}",
+                    f"{mag[idx, 1]:.6f}",
+                    f"{mag[idx, 2]:.6f}",
                 ]
             )
 

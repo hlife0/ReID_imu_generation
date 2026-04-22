@@ -10,19 +10,19 @@ import numpy as np
 
 
 class StageTotalCaptureTestTripletTest(unittest.TestCase):
-    def _write_fake_xsens(self, path: Path) -> None:
+    def _write_fake_xsens_aux(self, path: Path) -> None:
         path.write_text(
             "\n".join(
                 [
                     "3\t2",
                     "1",
-                    "Head\t1\t0\t0\t0\t1\t2\t3",
-                    "R_LowArm\t0\t1\t0\t0\t4\t5\t6",
-                    "L_LowArm\t0\t0\t1\t0\t7\t8\t9",
+                    "Head\t1\t0\t0\t0\t1\t2\t3\t0.1\t0.2\t0.3\t0.4\t0.5\t0.6",
+                    "R_LowArm\t0\t1\t0\t0\t4\t5\t6\t0.7\t0.8\t0.9\t1.0\t1.1\t1.2",
+                    "L_LowArm\t0\t0\t1\t0\t7\t8\t9\t1.3\t1.4\t1.5\t1.6\t1.7\t1.8",
                     "2",
-                    "Head\t1\t0\t0\t0\t10\t11\t12",
-                    "R_LowArm\t0\t1\t0\t0\t13\t14\t15",
-                    "L_LowArm\t0\t0\t1\t0\t16\t17\t18",
+                    "Head\t1\t0\t0\t0\t10\t11\t12\t1.9\t2.0\t2.1\t2.2\t2.3\t2.4",
+                    "R_LowArm\t0\t1\t0\t0\t13\t14\t15\t2.5\t2.6\t2.7\t2.8\t2.9\t3.0",
+                    "L_LowArm\t0\t0\t1\t0\t16\t17\t18\t3.1\t3.2\t3.3\t3.4\t3.5\t3.6",
                     "",
                 ]
             ),
@@ -52,20 +52,22 @@ class StageTotalCaptureTestTripletTest(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)
-            raw_root = tmp / "raw_totalcapture"
+            video_root = tmp / "video_totalcapture"
+            imu_root = tmp / "imu_totalcapture"
             stageii_root = tmp / "amass_totalcapture"
             data_root = tmp / "repo_data"
 
-            (raw_root / "freestyle3").mkdir(parents=True)
-            (raw_root / "s1").mkdir(parents=True)
+            (video_root / "freestyle3").mkdir(parents=True)
+            (imu_root / "s1").mkdir(parents=True)
             (stageii_root / "s1").mkdir(parents=True)
 
-            (raw_root / "freestyle3" / "TC_S1_freestyle3_cam1.mp4").write_bytes(b"fake video")
-            self._write_fake_xsens(raw_root / "s1" / "s1_freestyle3_Xsens.sensors")
+            (video_root / "freestyle3" / "TC_S1_freestyle3_cam1.mp4").write_bytes(b"fake video")
+            self._write_fake_xsens_aux(imu_root / "s1" / "freestyle3_Xsens_AuxFields.sensors")
             self._write_fake_stageii(stageii_root / "s1" / "freestyle3_stageii.npz")
 
             result = stage_totalcapture_test(
-                raw_totalcapture_root=raw_root,
+                video_source_root=video_root,
+                imu_source_root=imu_root,
                 stageii_totalcapture_root=stageii_root,
                 data_root=data_root,
                 sequence_id="S1_freestyle3",
@@ -89,15 +91,15 @@ class StageTotalCaptureTestTripletTest(unittest.TestCase):
             imu_csv = (output_dir / "s1_freestyle3_R_LowArm.csv").read_text(encoding="utf-8").splitlines()
             self.assertEqual(
                 imu_csv[0],
-                "frame_idx,quat0,quat1,quat2,quat3,acc_x,acc_y,acc_z",
+                "frame_idx,quat0,quat1,quat2,quat3,acc_x,acc_y,acc_z,gyro_x,gyro_y,gyro_z,mag_x,mag_y,mag_z",
             )
             self.assertEqual(
                 imu_csv[1],
-                "1,0.000000,1.000000,0.000000,0.000000,4.000000,5.000000,6.000000",
+                "1,0.000000,1.000000,0.000000,0.000000,4.000000,5.000000,6.000000,0.700000,0.800000,0.900000,1.000000,1.100000,1.200000",
             )
             self.assertEqual(
                 imu_csv[2],
-                "2,0.000000,1.000000,0.000000,0.000000,13.000000,14.000000,15.000000",
+                "2,0.000000,1.000000,0.000000,0.000000,13.000000,14.000000,15.000000,2.500000,2.600000,2.700000,2.800000,2.900000,3.000000",
             )
             self.assertEqual(len(imu_csv), 3)
 
@@ -113,24 +115,27 @@ class StageTotalCaptureTestTripletTest(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)
-            raw_root = tmp / "raw_totalcapture"
+            video_root = tmp / "video_totalcapture"
+            imu_root = tmp / "imu_totalcapture"
             stageii_root = tmp / "amass_totalcapture"
             data_root = tmp / "repo_data"
 
-            (raw_root / "freestyle3").mkdir(parents=True)
-            (raw_root / "s1").mkdir(parents=True)
+            (video_root / "freestyle3").mkdir(parents=True)
+            (imu_root / "s1").mkdir(parents=True)
             (stageii_root / "s1").mkdir(parents=True)
 
-            (raw_root / "freestyle3" / "TC_S1_freestyle3_cam1.mp4").write_bytes(b"fake video")
-            self._write_fake_xsens(raw_root / "s1" / "s1_freestyle3_Xsens.sensors")
+            (video_root / "freestyle3" / "TC_S1_freestyle3_cam1.mp4").write_bytes(b"fake video")
+            self._write_fake_xsens_aux(imu_root / "s1" / "freestyle3_Xsens_AuxFields.sensors")
             self._write_fake_stageii(stageii_root / "s1" / "freestyle3_stageii.npz")
 
             completed = subprocess.run(
                 [
                     sys.executable,
                     str(script_path),
-                    "--raw-totalcapture-root",
-                    str(raw_root),
+                    "--video-source-root",
+                    str(video_root),
+                    "--imu-source-root",
+                    str(imu_root),
                     "--stageii-totalcapture-root",
                     str(stageii_root),
                     "--data-root",

@@ -5,6 +5,8 @@ import json
 import subprocess
 from pathlib import Path
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Synthesize a right-forearm IMU sequence from a stored SMPL-X sequence.")
@@ -33,6 +35,7 @@ def main() -> None:
         ],
         capture_output=True,
         text=True,
+        cwd=REPO_ROOT,
     )
     if completed.returncode != 0:
         raise RuntimeError(completed.stderr or completed.stdout or "existing-tool IMU synthesis helper failed")

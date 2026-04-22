@@ -15,7 +15,8 @@ from src.totalcapture_test import stage_totalcapture_test
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Stage one TotalCapture test sample as video + single-sensor IMU + SMPL-X.")
     parser.add_argument("--sequence-id", default="S1_freestyle3")
-    parser.add_argument("--raw-totalcapture-root", default="/data/fzliang/totalcapture")
+    parser.add_argument("--video-source-root", default="/data/lxhong/totalcapture")
+    parser.add_argument("--imu-source-root", default="/data/lxhong")
     parser.add_argument("--stageii-totalcapture-root", default="/data/luoyizhang/HuMoGen/data/AMASS/TotalCapture")
     parser.add_argument("--data-root", default="data")
     parser.add_argument("--sensor-name", default="R_LowArm")
@@ -26,7 +27,8 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     result = stage_totalcapture_test(
-        raw_totalcapture_root=Path(args.raw_totalcapture_root),
+        video_source_root=Path(args.video_source_root),
+        imu_source_root=Path(args.imu_source_root),
         stageii_totalcapture_root=Path(args.stageii_totalcapture_root),
         data_root=Path(args.data_root),
         sequence_id=args.sequence_id,

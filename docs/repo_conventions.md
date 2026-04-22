@@ -24,7 +24,6 @@ The following should be treated as data formats or stored representations in rep
 - `Vicon`
 - `IMU`
 - `SMPL`
-- `SMPL-H`
 - `SMPL-X`
 - any text, binary, `npz`, `pkl`, `pt`, video, or sensor stream file already saved on disk
 
@@ -46,10 +45,21 @@ For this repository's purposes, terms like `Vicon` or `IMU` refer to the raw sto
 Examples:
 
 - `Vicon -> SMPL-X`
-- `mocap -> SMPL-H`
 - `raw IMU -> calibrated IMU`
 - `SMPL-X -> synthetic IMU`
 - `raw video + IMU -> aligned windows`
+
+## Current workflow-specific convention
+
+The current `totalcapture_test` workflow standardizes real and synthetic IMU into a common CSV layout:
+
+- `frame_idx`
+- quaternion: `quat0..quat3`
+- acceleration: `acc_x..acc_z`
+- gyroscope: `gyro_x..gyro_z`
+- magnetic field: `mag_x..mag_z`
+
+Any new real/synthetic IMU path added to this repository should either use this exact layout or document why it differs.
 
 ### Datasets
 

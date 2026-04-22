@@ -31,6 +31,7 @@ class RepositorySkeletonTest(unittest.TestCase):
             "scripts/totalcapture_test/plot_imu_comparison.py",
             "docs/pipeline_overview.md",
             "docs/repo_conventions.md",
+            "docs/totalcapture_test_workflow.md",
             "third-party/README.md",
         ]
         for relative_path in expected_files:
