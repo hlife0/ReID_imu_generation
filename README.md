@@ -2,27 +2,34 @@
 
 This repository is a lightweight, script-first workspace for synthetic IMU research from structured human motion data such as SMPL-X, mocap, Vicon, and equivalent body-motion representations.
 
-The repository is intentionally organized to make the generation pipeline transparent and inspectable rather than black-boxed.
+The repository is intentionally organized to make the current generation pipeline transparent and inspectable rather than black-boxed.
 
 ## Current Implemented Workflow
 
-The repository currently contains one concrete, fully wired example workflow built around `TotalCapture`.
+The repository currently treats `GlobalPose_origin` as the main maintained `TotalCapture` workflow.
 
 Implemented path:
 
-1. stage one `TotalCapture` sample into `data/processed/totalcapture_test/...`
-2. keep exactly three processed sample files:
-   - one raw video `.mp4`
-   - one real single-sensor IMU `.csv`
-   - one `SMPL-X` body-motion `.npz`
-3. synthesize a matching single-sensor IMU sequence from `SMPL-X`
-4. compare real and synthetic IMU with an overlay plot
+1. stage a raw `TotalCapture` sample under `data/raw/totalcapture/S1_freestyle3/`
+2. extract the matching raw `R_LowArm` IMU stream directly from the local `lxhong` TotalCapture raw files
+3. synthesize a matching `R_LowArm` IMU sequence from `SMPL-X stageii` with the `GlobalPose_origin` pipeline
+4. evaluate `raw vs generated` and save plots, metrics, and a report
 
 Current entry points:
 
-- `scripts/totalcapture_test/prepare_sample.py`
-- `scripts/totalcapture_test/synthesize_imu.py`
+- `scripts/totalcapture_test/GlobalPose_origin/run_pipeline.py`
+- `scripts/totalcapture_test/evaluate_imu_metrics.py`
 - `scripts/totalcapture_test/plot_imu_comparison.py`
+
+## Legacy Workflow
+
+The previous staged three-file `S1_freestyle3` workflow is still preserved under `legacy/`:
+
+- `src/legacy/totalcapture_test.py`
+- `scripts/legacy/totalcapture_test/prepare_sample.py`
+- `scripts/legacy/totalcapture_test/synthesize_imu.py`
+- `scripts/legacy/totalcapture_test/plot_imu_comparison.py`
+- `docs/legacy/totalcapture_test_workflow.md`
 
 ## Working Principles
 
@@ -30,7 +37,6 @@ Current entry points:
 - Run research workflows from `scripts/`
 - Save inspectable intermediates under `data/interim`
 - Save run artifacts under `outputs/`
-- Keep notebooks secondary to scripts
 - Prefer small, explicit modules over deep abstraction
 
 ## Terminology Boundary
@@ -58,7 +64,8 @@ See `docs/repo_conventions.md` for the explicit repository convention.
 repo/
 ├── src/                        # Current reusable project logic
 ├── scripts/
-│   └── totalcapture_test/      # TotalCapture test workflow entry points
+│   ├── totalcapture_test/      # Current maintained workflow entry points
+│   └── legacy/totalcapture_test/  # Archived legacy staged workflow
 ├── data/                       # Ignored runtime data and references
 ├── outputs/                    # Plots and run artifacts
 ├── tests/                      # Lightweight validation checks
@@ -68,18 +75,24 @@ repo/
 
 ## Current Data Products
 
-- `data/processed/totalcapture_test/S1_freestyle3/`
-  - staged three-file sample
-- `data/interim/totalcapture_test/S1_freestyle3/`
-  - synthetic IMU derived from the staged `SMPL-X`
-- `outputs/totalcapture_test/S1_freestyle3/`
-  - real vs synthetic comparison plots
+- `data/raw/totalcapture/S1_freestyle3/`
+  - staged raw `TotalCapture` sample with video, raw IMU, calibration, and GT files
+- `data/raw/totalcapture_test/GlobalPose_origin/s1_freestyle3/R_LowArm_raw.csv`
+  - raw `R_LowArm` IMU extracted from the local `lxhong` TotalCapture source
+- `outputs/totalcapture_test/GlobalPose_origin/`
+  - `R_LowArm` raw/generated CSVs, comparison plot, metrics JSON, and report
+- `data/legacy/processed/totalcapture_test/S1_freestyle3/`
+  - archived legacy staged three-file sample
+- `data/legacy/interim/totalcapture_test/S1_freestyle3/`
+  - archived legacy synthetic IMU CSV
+- `outputs/legacy/totalcapture_test/S1_freestyle3/`
+  - archived legacy comparison outputs
 
 ## Current Primary Files
 
-- `src/totalcapture_test.py`
-- `scripts/totalcapture_test/prepare_sample.py`
-- `scripts/totalcapture_test/synthesize_imu.py`
+- `scripts/totalcapture_test/GlobalPose_origin/run_pipeline.py`
+- `src/evaluation/imu_csv.py`
 - `scripts/totalcapture_test/plot_imu_comparison.py`
 - `docs/totalcapture_test_workflow.md`
+- `docs/legacy/totalcapture_test_workflow.md`
 - `docs/repo_conventions.md`

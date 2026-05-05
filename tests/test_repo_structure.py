@@ -9,12 +9,17 @@ class RepositorySkeletonTest(unittest.TestCase):
     def test_expected_directories_exist(self) -> None:
         expected_directories = [
             "src",
+            "src/legacy",
             "scripts",
             "scripts/totalcapture_test",
+            "scripts/legacy",
+            "scripts/legacy/totalcapture_test",
             "data",
             "outputs",
             "tests",
+            "tests/legacy",
             "docs",
+            "docs/legacy",
             "third-party",
         ]
         for relative_path in expected_directories:
@@ -25,13 +30,15 @@ class RepositorySkeletonTest(unittest.TestCase):
         expected_files = [
             "README.md",
             ".gitignore",
-            "src/totalcapture_test.py",
-            "scripts/totalcapture_test/prepare_sample.py",
-            "scripts/totalcapture_test/synthesize_imu.py",
+            "src/legacy/totalcapture_test.py",
+            "scripts/totalcapture_test/prepare_triplet.py",
+            "scripts/legacy/totalcapture_test/prepare_sample.py",
+            "scripts/legacy/totalcapture_test/synthesize_imu.py",
             "scripts/totalcapture_test/plot_imu_comparison.py",
+            "scripts/totalcapture_test/GlobalPose_origin/run_pipeline.py",
             "docs/pipeline_overview.md",
             "docs/repo_conventions.md",
-            "docs/totalcapture_test_workflow.md",
+            "docs/legacy/totalcapture_test_workflow.md",
             "third-party/README.md",
         ]
         for relative_path in expected_files:

@@ -48,7 +48,7 @@ class StageTotalCaptureTestTripletTest(unittest.TestCase):
         )
 
     def test_stages_exact_three_files_for_totalcapture_test_sequence(self) -> None:
-        from src.totalcapture_test import stage_totalcapture_test
+        from src.legacy.totalcapture_test import stage_totalcapture_test
 
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)
@@ -110,8 +110,8 @@ class StageTotalCaptureTestTripletTest(unittest.TestCase):
             self.assertEqual(smplx["pose_body"].shape, (2, 63))
 
     def test_cli_script_runs_from_repo_root(self) -> None:
-        repo_root = Path(__file__).resolve().parents[1]
-        script_path = repo_root / "scripts" / "totalcapture_test" / "prepare_sample.py"
+        repo_root = Path(__file__).resolve().parents[2]
+        script_path = repo_root / "scripts" / "legacy" / "totalcapture_test" / "prepare_sample.py"
 
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)

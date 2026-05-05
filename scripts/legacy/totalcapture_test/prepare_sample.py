@@ -5,11 +5,11 @@ import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from src.totalcapture_test import stage_totalcapture_test
+from src.legacy.totalcapture_test import stage_totalcapture_test
 
 
 def parse_args() -> argparse.Namespace:
@@ -18,7 +18,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--video-source-root", default="/data/lxhong/totalcapture")
     parser.add_argument("--imu-source-root", default="/data/lxhong")
     parser.add_argument("--stageii-totalcapture-root", default="/data/luoyizhang/HuMoGen/data/AMASS/TotalCapture")
-    parser.add_argument("--data-root", default="data")
+    parser.add_argument("--data-root", default="data/legacy")
     parser.add_argument("--sensor-name", default="R_LowArm")
     parser.add_argument("--camera-name", default="cam1")
     return parser.parse_args()

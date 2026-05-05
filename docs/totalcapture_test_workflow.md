@@ -1,107 +1,42 @@
-# TotalCapture Test Workflow
+# TotalCapture Workflow
 
-This document describes the current concrete workflow implemented in this repository.
+This repository now treats `GlobalPose_origin` as the main maintained `TotalCapture` workflow.
 
-## Scope
+Detailed walkthrough:
 
-The repository currently implements a single worked example around one `TotalCapture` sequence:
+- `docs/totalcapture_test_workflow_detailed.md`
 
-- sequence: `S1_freestyle3`
-- sensor: `R_LowArm`
-- body representation: `SMPL-X`
-
-## Inputs
-
-The workflow uses three upstream sources:
-
-1. video source root
-   - current default: `/data/lxhong/totalcapture`
-   - source file example: `freestyle3/TC_S1_freestyle3_cam1.mp4`
-
-2. richer IMU source root
-   - current default: `/data/lxhong`
-   - source archive example: `s1_Gyro_Mag.tar.gz`
-   - source member example: `s1/freestyle3_Xsens_AuxFields.sensors`
-
-3. staged body-motion source root
-   - current default: `/data/luoyizhang/HuMoGen/data/AMASS/TotalCapture`
-   - source file example: `s1/freestyle3_stageii.npz`
-
-## Step 1: Stage the three-file processed sample
+## Current Main Path
 
 Entry point:
 
-- `scripts/totalcapture_test/prepare_sample.py`
+- `scripts/totalcapture_test/GlobalPose_origin/run_pipeline.py`
 
-Core logic:
+Inputs:
 
-- `src/totalcapture_test.py`
+- staged raw sample under `data/raw/totalcapture/S1_freestyle3/`
+- raw IMU source from the local `lxhong` TotalCapture dataset
+- `SMPL-X stageii` source from `/data/luoyizhang/HuMoGen/data/AMASS/TotalCapture/`
 
 Outputs:
 
-- `data/processed/totalcapture_test/S1_freestyle3/TC_S1_freestyle3_cam1.mp4`
-- `data/processed/totalcapture_test/S1_freestyle3/s1_freestyle3_R_LowArm.csv`
-- `data/processed/totalcapture_test/S1_freestyle3/s1_freestyle3_smplx.npz`
+- `data/raw/totalcapture/S1_freestyle3/`
+- `data/raw/totalcapture_test/GlobalPose_origin/s1_freestyle3/R_LowArm_raw.csv`
+- `outputs/totalcapture_test/GlobalPose_origin/csv/R_LowArm_generated.csv`
+- `outputs/totalcapture_test/GlobalPose_origin/metrics/R_LowArm_raw_vs_generated_metrics.json`
+- `outputs/totalcapture_test/GlobalPose_origin/plots/R_LowArm_raw_vs_generated.png`
+- `outputs/totalcapture_test/GlobalPose_origin/report.md`
 
-### Real IMU CSV format
+The maintained workflow compares `raw` and `generated` IMU only for `R_LowArm`.
 
-The staged real IMU CSV contains one row per frame and one sensor only.
+## Legacy Path
 
-Columns:
+The previous staged three-file `S1_freestyle3` pipeline is still available under `legacy/`:
 
-- `frame_idx`
-- `quat0`, `quat1`, `quat2`, `quat3`
-- `acc_x`, `acc_y`, `acc_z`
-- `gyro_x`, `gyro_y`, `gyro_z`
-- `mag_x`, `mag_y`, `mag_z`
+- `scripts/legacy/totalcapture_test/prepare_sample.py`
+- `scripts/legacy/totalcapture_test/synthesize_imu.py`
+- `scripts/legacy/totalcapture_test/plot_imu_comparison.py`
+- `src/legacy/totalcapture_test.py`
+- `docs/legacy/totalcapture_test_workflow.md`
 
-The current implementation expects the richer `Xsens_AuxFields.sensors` format and extracts only the chosen sensor.
-
-## Step 2: Synthesize IMU from SMPL-X
-
-Entry point:
-
-- `scripts/totalcapture_test/synthesize_imu.py`
-
-Current backend chain:
-
-- `scripts/totalcapture_test/_synthesize_imu_existing.py`
-- official `smplx` Python package for `SMPL-X` forward
-- local `data_generation` utilities for joint projection and wrist sensor trajectory
-- `third-party/GlobalPose/articulate/utils/imu/simulation.py` for IMU acceleration, angular velocity, and magnetic field
-
-Output:
-
-- `data/interim/totalcapture_test/S1_freestyle3/s1_freestyle3_R_LowArm_synthetic.csv`
-
-### Synthetic IMU CSV format
-
-The synthetic IMU CSV uses the same column layout as the staged real IMU CSV:
-
-- `frame_idx`
-- `quat0`, `quat1`, `quat2`, `quat3`
-- `acc_x`, `acc_y`, `acc_z`
-- `gyro_x`, `gyro_y`, `gyro_z`
-- `mag_x`, `mag_y`, `mag_z`
-
-This keeps real and synthetic outputs directly comparable.
-
-## Step 3: Plot real vs synthetic comparison
-
-Entry point:
-
-- `scripts/totalcapture_test/plot_imu_comparison.py`
-
-Helper:
-
-- `scripts/totalcapture_test/_plot_imu_comparison.py`
-
-Output:
-
-- `outputs/totalcapture_test/S1_freestyle3/r_lowarm_real_vs_synthetic.png`
-
-The figure overlays all quaternion, acceleration, gyroscope, and magnetic channels.
-
-## Current limitation
-
-This workflow is still a focused example, not a general multi-sequence pipeline. It is intentionally narrow so the data path, synthesis path, and comparison path stay inspectable.
+Its default data/output roots also live under `data/legacy/` and `outputs/legacy/`.

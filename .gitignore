@@ -12,6 +12,7 @@ data/raw/*
 data/reference/*
 data/interim/*
 data/processed/*
+data/legacy/*
 
 outputs/*
 !outputs/README.md
