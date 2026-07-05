@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "generator": "globalpose",
+  "sensor": "R_LowArm",
+  "switches": {
+    "installation_error_rbs": true,
+    "position_random_walk": true,
+    "orientation_random_walk": true,
+    "sensor_noise": true,
+    "orientation_from_noisy_integration": true
+  },
+  "_notes": "Full GlobalPose realism stack ON (the current maintained pipeline behaviour). Default synth config for the headline TSTR ranking; M5 ablates individual switches between this and globalpose_clean.json."
+}

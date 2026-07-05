@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "generator": "humogen",
+  "sensor": "R_LowArm",
+  "params": {
+    "add_noise": true,
+    "accel_noise_std": 0.01,
+    "gyro_noise_std": 0.005
+  },
+  "_notes": "Faithful to the maintained HuMoGen_origin behaviour: target_hz = motion fps, HuMoGen's default gravity vector, zero magnetic field."
+}

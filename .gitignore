@@ -17,5 +17,19 @@ data/legacy/*
 outputs/*
 !outputs/README.md
 
+# sim2real: the results ledger and reports are small and valuable — keep them
+# in git (heavy artifacts like checkpoints/embeddings below stay ignored).
+!outputs/sim2real/
+outputs/sim2real/*
+!outputs/sim2real/*/
+outputs/sim2real/*/*
+!outputs/sim2real/*/*.md
+!outputs/sim2real/*/*.json
+!outputs/sim2real/*/results.jsonl
+!outputs/sim2real/*/l1/
+outputs/sim2real/*/l1/*
+!outputs/sim2real/*/l1/*.md
+!outputs/sim2real/*/l1/*.json
+
 third-party/*
 !third-party/README.md

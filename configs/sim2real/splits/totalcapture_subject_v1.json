@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "name": "totalcapture_subject_v1",
+  "dataset": "totalcapture",
+  "train_subjects": ["S1", "S2", "S3"],
+  "val_subjects": ["S4"],
+  "test_subjects": ["S5"],
+  "frozen": "2026-07-05",
+  "rationale": "Subject-disjoint split. In the IMU<->motion retrieval task the motion content is half of the label, so any motion shared across train/test inflates results; splitting by subject removes sequence- and take-level leakage in one cut. Frozen before any corpus generation. DO NOT EDIT — create totalcapture_subject_v2.json instead. Hyperparameters may only be tuned on val (S4); test (S5) is reserved for final reported numbers."
+}

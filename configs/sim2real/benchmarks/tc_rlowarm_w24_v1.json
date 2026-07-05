@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "benchmark_id": "tc_rlowarm_w24_v1",
+  "dataset": "totalcapture",
+  "sensor": "R_LowArm",
+  "split_file": "configs/sim2real/splits/totalcapture_subject_v1.json",
+  "window_len": 24,
+  "stride": 16,
+  "target_fps": 60.0,
+  "channels": ["acc_x", "acc_y", "acc_z", "gyro_x", "gyro_y", "gyro_z"],
+  "normalization": {
+    "kind": "zscore_per_channel",
+    "stats_from": "train_source"
+  },
+  "gate": {
+    "min_acc_mag_pearson": 0.10,
+    "min_gyro_mag_pearson": 0.10,
+    "max_tail_trim_ratio": 0.10
+  },
+  "_gate_calibration": {
+    "calibrated_on": "S1_freestyle3 (known-good sample, 2026-07-05)",
+    "measured": {
+      "synth_globalpose_noise_full": {"acc_mag_pearson": 0.550, "gyro_mag_pearson": 0.352},
+      "synth_globalpose_clean": {"acc_mag_pearson": 0.625, "gyro_mag_pearson": 0.352},
+      "synth_humogen_default": {"acc_mag_pearson": 0.300, "gyro_mag_pearson": 0.269},
+      "synth_naive_default": {"acc_mag_pearson": 0.975, "gyro_mag_pearson": 0.269}
+    },
+    "notes": "Fail rule: acc AND gyro magnitude correlation must BOTH fall below the floor (pairing breakage kills both channels; a single weak channel is generator quality — e.g. HuMoGen-origin's Z-up gravity in the Y-up world corrupts acc only — and must stay in the benchmark for L2 to punish). Axis-level correlations are NOT gated (frame conventions differ; acc-axis pearson is negative even on the aligned S1_freestyle3 pair). Full-corpus measurement 2026-07-05: all 148 streams have healthy gyro (0.16-0.56); 16 streams have weak acc, 10 of them humogen."
+  },
+  "_notes": [
+    "window_len=24 / stride=16 mirror the main project's window convention so conclusions translate.",
+    "target_fps=60 assumes the TotalCapture Xsens rate; M1 must confirm it against the real stream and the SMPL-X mocap_frame_rate, and M2 resamples both streams to target_fps if they differ.",
+    "gate thresholds calibrated on S1_freestyle3 — see _gate_calibration.",
+    "normalization stats are computed from the TRAINING source only and applied unchanged to val/test — see src/sim2real/windows.py docstring."
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "generator": "globalpose",
+  "sensor": "R_LowArm",
+  "switches": {
+    "installation_error_rbs": false,
+    "position_random_walk": false,
+    "orientation_random_walk": false,
+    "sensor_noise": false,
+    "orientation_from_noisy_integration": false
+  },
+  "_notes": "All realism modules OFF: deterministic kinematic synthesis only. The adapter (M1) maps each switch onto the corresponding step of scripts/totalcapture_test/GlobalPose_origin/_run_pipeline_impl.py. This config anchors the 'clean' end of the M5 noise ablation."
+}

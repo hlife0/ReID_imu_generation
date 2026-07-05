@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "generator": "naive",
+  "sensor": "R_LowArm",
+  "params": {},
+  "_notes": "Pure finite-difference kinematics baseline (gravity [0,-9.81,0] in pipeline world), no realism modules. Anchors the bottom of the generator ranking."
+}

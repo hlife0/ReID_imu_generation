@@ -21,6 +21,24 @@ Current entry points:
 - `scripts/totalcapture_test/evaluate_imu_metrics.py`
 - `scripts/totalcapture_test/plot_imu_comparison.py`
 
+## Sim-to-Real Evaluation Subsystem (WIP)
+
+`src/sim2real/` and `scripts/sim2real/` host a downstream benchmark that
+ranks the generation pipelines by usefulness on a real task
+(train-on-synthetic, test-on-real IMU->motion retrieval on TotalCapture)
+instead of signal similarity alone.
+
+- Design and construction plan: `docs/sim2real_design.md`
+- Findings + handoff memo: `docs/sim2real_findings_v1.md`
+- Progress / resume notes: `docs/sim2real_progress.md`
+- Frozen data split (do not edit): `configs/sim2real/splits/totalcapture_subject_v1.json`
+
+Status: benchmark v1 (`tc_rlowarm_w24_v1`) complete — corpus, gate, windows,
+L1, and the full 46-cell L2 matrix. Headline: the naive kinematics baseline
+transfers ~10x better than the full GlobalPose realism stack (TSTR), and
+real+naive mixed training beats real-only by +37% relative; signal-frame
+semantics dominate noise realism.
+
 ## Legacy Workflow
 
 The previous staged three-file `S1_freestyle3` workflow is still preserved under `legacy/`:
