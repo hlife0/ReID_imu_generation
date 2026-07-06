@@ -1,83 +1,133 @@
-# 交接备忘：合成 IMU 在主项目 pipeline 下的评测结论（sim2pipe → G4）
+# 交接备忘：合成 IMU 下游增益评测体系（sim2real + sim2pipe）→ 主项目 G4
 
-> 收件人：justlanxuan（Rd-id-Project / G4 负责人）
-> 发件人：hrli（ReID_imu_generation / 合成 IMU 生成）
+> 收件人：justlanxuan 团队（Rd-id-Project / G4）
+> 发件人：hrli（ReID_imu_generation / 合成 IMU 生成方向）
 > 日期：2026-07-07
-> 依据：`ReID_imu_generation/docs/sim2pipe_{design,findings}_v1.md`、账本 `outputs/sim2pipe*/…/results.jsonl`
+> 本备忘自包含，不需要你先读我方任何文档。术语首次出现都会解释。
 
-## 一句话
+---
 
-**我用你主项目自己的模型（IMUVideoMatcher）而不是我自建的 probe，评测了三条合成 IMU pipeline
-（naive / globalpose / humogen）。结论：当前三个生成器产出的合成 IMU，在你的真实模型下下游迁移全部失败，
-且这不是归一化能修的——是信号语义（比力/重力/时序）层面的硬 sim-to-real gap。因此 G4 的 I4（数据增强）
-与 I5（合成预训练）用现有生成器接进来不会有正收益，先别投入。**
+## 0. 一句话
 
-## 我做了什么（一句话可信性）
+**我搭了一套"评测合成 IMU 到底能不能帮下游任务"的评测体系，并用它评了我们三条合成 IMU 生成
+pipeline。最终结论：现有三个生成器产出的合成 IMU，在你主项目的真实模型下下游迁移全部失败，
+原因是信号语义层面的硬伤（不是噪声、也不是归一化能修的）。所以 G4 里想用合成数据做数据增强(I4)
+或预训练(I5)，用现在的生成器接进来不会有收益——得先修生成器的信号语义。**
 
-- 测试床 TotalCapture，冻结 subject 切分（S1–S3 训 / S4 验 / S5 测），传感器 R_LowArm、窗口 w24，
-  motion 侧用**估计骨架**（模拟你真实 pipeline 的 `视频→AlphaPose→MotionBERT→H36M17`，不吃像素）。
-- 把每条动作喂给各生成器得到"同一动作、真假多版 IMU"的平行语料，导出成你主项目吃的 48 维 npz 格式，
-  **直接 subprocess 调你自己的 `src.data.slice.totalcapture` / `src.engine.train` / `src.engine.eval`**
-  （在你的 autism_test 环境里跑，我这边零改动你仓库）。
-- 指标 = 真实测试窗口的 batch 内检索 top1（就是你 `retrieval_top1` 那套，也是 sim2real R@1 的同族）。
-  注意这是**检索 top1，不是 FrameAcc**；FrameAcc 要到 P2（见下）。
+---
 
-健全性都过了：TRTR（真训真测）0.2518 是健康上界（约 16× 随机线）；打乱配对对照被压在
-"冻结编码器零样本地板"~0.11 不涨；格式往返无警告。
+## 1. 要解决的问题：怎么"公平地"评一个合成 IMU 生成器好不好
 
-## 关键数字（test_top1，S5 真实，3 seeds mean±std）
+我们仓库有三条把动作(motion)转成合成 IMU 的 pipeline：
+- **naive**：最朴素的有限差分运动学基线；
+- **globalpose**：唯一显式模拟原始 acc/gyro/mag + 噪声 + 标定误差的开源实现（看起来"最真"）；
+- **humogen**：另一条第三方实现。
+
+以前我们只会做**信号级**对比（合成信号和真实信号的 RMSE、相关性、频谱像不像）。但这回答不了团队真正
+关心的问题：**到底哪条 pipeline 的合成数据，拿去训模型后在真实 IMU 上最能打？** "信号像"不等于"下游有用"。
+
+所以我要建的，是一套让**下游任务的表现**来当裁判的评测体系，核心协议是 **TSTR（Train on Synthetic,
+Test on Real，用合成数据训练、在真实数据上测试）**：一个生成器好不好，就看"只用它的合成数据训出来的模型，
+在真实 IMU 上还行不行"。作为对照还有 **TRTR（真实训真实测，性能上界）** 和 **mix（真实+合成一起训，
+对应数据增强）**。
+
+测试床用 **TotalCapture**：每条动作同时有真实 IMU 和 SMPL-X 动作，把同一条动作喂给各生成器，就得到
+"同一个动作、真假多个版本 IMU"的平行语料，传感器锁定右手腕 R_LowArm（和你 custom 场景一致）。
+
+---
+
+## 2. 具体做了什么：两层评测，从轻到重
+
+### 第一层 sim2real —— 自建轻量评测，快速给排名
+
+先不动你主项目，用一个**我自己搭的小型检索模型（probe，双塔：IMU 塔 + 动作塔）** 当量具，跑 TSTR。
+配套三层金字塔：L0 信号门禁（防止坐标系/对齐坏了冒充"迁移差"）、L1 分布距离、L2 检索下游。指标是
+窗口级 IMU→动作检索的 R@1。全部结果按 3 个随机种子报 mean±std，切分按受试者冻结防泄漏。
+
+### 第二层 sim2pipe —— 用你主项目的真身模型复验
+
+probe 终究是我自己造的尺子。你主项目的真实模型才是最终消费方：**IMUVideoMatcher**（你的 DeSPITE LSTM
+IMU 编码器 + MotionBERT 骨架编码器）。所以我又搭了 sim2pipe，把量具换成你的模型：
+- **完全不搬你的代码、不改你的仓库**：我把合成语料导出成你 pipeline 吃的 48 维 npz 格式，然后 subprocess
+  直接调你自己的 `slice / train / eval`，在你的 autism_test 环境里跑；结果再收回我这边的账本。
+- 骨架侧我用的是"估计骨架"（模拟你真实链路 `视频→AlphaPose→MotionBERT→H36M17` 的产物，不吃像素），
+  贴近你实际部署。
+- 跑了 21 格矩阵（TRTR/TSTR/mix × 三个生成器 × 3 seeds），指标是真实测试集上的检索 top1
+  （你 `retrieval_top1` 那套；注意这是**检索准确率，不是 FrameAcc**，FrameAcc 要到后面的 P2 阶段）。
+
+---
+
+## 3. 结果
+
+### 3a. sim2real（自建 probe）说什么
+
+| 设置 | R@1 | 说明 |
+|---|---|---|
+| TRTR（真实上界） | 0.0395 | 随机线的 40 倍 |
+| TSTR naive | **0.0226** | 最佳生成器，达上界 57% |
+| TSTR humogen | 0.0023 | ≈ 2× 随机线 |
+| TSTR globalpose | 0.0013 | ≈ 随机线 |
+| mix 真实+naive | **0.0541** | 比纯真实 **+37%** |
+
+probe 的结论：**naive 大幅胜出**（比"看起来最真"的 globalpose 强约 10 倍），混合真实+naive 还能涨 37%，
+而且"信号像不像"(分布距离)和"下游有没有用"排名完全反过来——**信号语义比噪声真实感重要得多**。
+
+### 3b. sim2pipe（你的真身模型）说什么
 
 | 协议 | 训练数据 | test_top1 | 读法 |
 |---|---|---|---|
-| TRTR | 真实 | **0.2518 ± 0.006** | 上界锚点，测试床成立 |
-| TSTR | naive 合成 | 0.0127 ± 0.002 | 塌到随机线 |
-| TSTR | globalpose 合成 | 0.0098 ± 0.002 | 塌 |
-| TSTR | humogen 合成 | 0.0128 ± 0.002 | 塌 |
-| mix | 真实 + naive | 0.2406 ± 0.014 | 相对 TRTR **无增益（略降）** |
-| mix | 真实 + globalpose | 0.2601 ± 0.001 | 噪声内持平 |
-| mix | 真实 + humogen | 0.2374 ± 0.010 | 略降 |
+| TRTR | 真实 | **0.2518** | 上界锚点，测试床成立 |
+| TSTR | naive | 0.0127 | 塌到随机线 |
+| TSTR | globalpose | 0.0098 | 塌 |
+| TSTR | humogen | 0.0128 | 塌 |
+| mix | 真实+naive | 0.2406 | 相对 TRTR **无增益（略降）** |
+| mix | 真实+globalpose | 0.2601 | 噪声内持平 |
+| mix | 真实+humogen | 0.2374 | 略降 |
 
-两点直接对你的假设：
-- **I5（合成预训练→迁移）**：TSTR 三个生成器全塌到随机线（彼此差 0.003 < 随机线 0.0156，不可区分）。
-  纯合成训练的模型在真实 IMU 上无检索能力。
-- **I4（合成做增强）**：mix（真实+合成）≈ 纯真实 TRTR，合成没带来增益，个别还略降。
+**关键：probe 的乐观排名没有在你的真实模型里幸存。** 在你的模型下，三个生成器纯合成训练(TSTR)全部塌到
+随机线附近（彼此不可区分），混合训练也没有任何增益。probe 之所以乐观，是因为它自己从零训 IMU 编码器，
+绕过了真实模型的难点；你的 DeSPITE 是在真实 IMU 上预训练的，一喂合成 IMU 就露馅。
 
-## 为什么 —— 我拆开了主因（归一化消融）
+### 3c. 主因是什么（我做了消融拆开）
 
-TSTR 崩到随机线以下，先验有两个嫌疑：合成源统计量归一化把真实测试推到分布外（**归一化域移**），
-或合成信号帧语义本身不对（**硬 gap**）。我用 **oracle 真实统计量**（TRTR 的 S1–S3 真实 imu_stats）
-重跑 9 格 TSTR，测试侧真实 IMU 因此和 TRTR 完全同处理：
+TSTR 崩溃有两个嫌疑：合成数据尺度不对被归一化推到分布外（**归一化问题**），还是合成信号语义本身就错
+（**硬 gap**）。我用**完美的真实统计量**（oracle）重新归一化又跑了 9 格 TSTR：
 
-| 流 | 合成统计量 | 真实统计量(oracle) | Δ |
+| 流 | 合成统计量 | 真实统计量(oracle) | 变化 |
 |---|---|---|---|
-| naive | 0.0127 | 0.0098 | −0.003 |
-| globalpose | 0.0098 | 0.0105 | +0.001 |
-| humogen | 0.0128 | 0.0122 | −0.001 |
+| naive | 0.0127 | 0.0098 | 没救回来 |
+| globalpose | 0.0098 | 0.0105 | 没救回来 |
+| humogen | 0.0128 | 0.0122 | 没救回来 |
 
-**用完美真实统计量归一化也救不回来**（Δ 全在噪声内）。所以是信号语义/时序动态的硬 gap，不是归一化。
-一阶统计量旁证：真实加速度均值 `[2.59, -0.70, 2.07]` 带重力 DC 分量，而 globalpose_clean 是 `[0,0,0]`
-（纯自由加速度、无重力）、naive 重力反向——这些是**你的冻结 DeSPITE（在真实 IMU 上预训练）根本没见过的信号**。
+**用完美真实统计量归一化也救不回来** → 不是归一化问题，是**信号语义的硬伤**。旁证：真实腕部加速度均值
+`[2.59, -0.70, 2.07]` 带明显重力分量，而 globalpose 是 `[0,0,0]`（纯自由加速度、没有重力）、naive 的重力
+方向还是反的——真实 IMU 读的是**含重力的传感器系比力**，我们的生成器输出的是**自由加速度**，这是你预训练
+编码器根本没见过的信号。
 
-## 建议
+---
 
-1. **现有生成器别接进 G4 的 I4/I5**——pipeline 层面已证无收益，会浪费 seed 预算。
-2. **首要且唯一已知的杠杆是生成器信号语义修复**——我这边计划给 globalpose 增加一个"传感器系比力输出"
-   配置开关，让合成 IMU 输出**含重力的比力**而非自由加速度，匹配你 DeSPITE 的预训练分布（我们仓库内部
-   把这条记作 sim2real 发现 F2 的后续验证，你不必关心编号）。这个变体做出来后我会优先复跑 sim2pipe，
-   翻盘了再找你接 I4/I5。
+## 4. 对你 G4 的直接含义
+
+1. **现有三个生成器不要接进 I4（数据增强）/ I5（预训练）**——pipeline 层面已经证明无收益，会白费 seed 预算。
+2. **下一步唯一已知的杠杆是修生成器的信号语义**：我这边计划给 globalpose 加一个"传感器系比力输出"配置开关，
+   让合成 IMU 输出**含重力的比力**而不是自由加速度，去匹配你 DeSPITE 的预训练分布。这个变体做出来后我会
+   优先用 sim2pipe 复跑；**翻盘了再找你接 I4/I5**，那时才值得投入。
 3. **需要你配合的两件事（不急）**：
-   - **estskel 标定**：我的估计骨架退化参数目前是文献默认值，未用真实 AlphaPose 数据标定。若你能给一份
-     custom（或 TotalCapture）的 AlphaPose→MotionBERT 提取骨架样本，我能重标定 `estimated_default.json`，
-     让 P1 的骨架侧更贴近你真实 pipeline。
-   - **P2 流程对齐**：P2 = 用胜出生成器合成预训练 → 你的 `--init_alignment_ckpt` 接 custom per-video 7:3
-     微调 → 出 FrameAcc（6 seeds）。这才是能直接进你 SOTA 表的数字，但依赖 custom 数据链路和你的实验纪律
-     （SOTA 表更新规则、experiments 目录归属）。**本期我没做 P2**，等上面那个比力输出变体让 P1 先翻盘、
-     再和你对 P2 流程。
+   - **给一份骨架样本**：我的估计骨架退化参数现在是文献默认值，没用真实 AlphaPose 数据标定过。你若能给一份
+     custom（或 TotalCapture）的 AlphaPose→MotionBERT 提取骨架样本，我能把它标准了，让评测的骨架侧更贴近你真实链路。
+   - **对齐 P2 流程**：真正能进你 SOTA 表的数字是 **P2**——用胜出生成器合成预训练 → 你的 `--init_alignment_ckpt`
+     接 custom 7:3 微调 → 出 **FrameAcc**（6 seeds）。这依赖 custom 数据链路和你的实验纪律（SOTA 表规则、
+     experiments 目录归属），**本期我没做 P2**，等信号语义变体让评测先翻盘、再和你对 P2 怎么走。
 
-## 可复现入口 & 局限
+---
 
-- 驱动：`ReID_imu_generation/scripts/sim2pipe/03_run_pipe_probe.py`（读 `configs/sim2pipe/matrix_pipe_v1.yaml`，
-  账本续跑）；报告：`05_report.py`；机器路径在 `configs/sim2pipe/paths.yaml`（指向你的仓库、autism_test env、
-  MotionBERT/despite ckpt）。
-- 局限：单测试床（TotalCapture）、单窗口（w24）、指标是检索 top1 非 FrameAcc（绝对数受 batch 大小影响，
-  排名/增益的定性结论稳健）；estskel 未真实标定。这些都不影响"现有生成器无迁移价值 + 主因是信号语义"这两个定性结论。
+## 5. 可复现入口 & 局限
+
+- 代码/结果都在 `ReID_imu_generation` 仓库（已 commit 到 main）：
+  - 驱动 `scripts/sim2pipe/03_run_pipe_probe.py`（读 `configs/sim2pipe/matrix_pipe_v1.yaml`，账本续跑）；
+  - 报告 `scripts/sim2pipe/05_report.py` → `outputs/sim2pipe/pipe_probe_tc_v1/report.md`；
+  - 机器路径在 `configs/sim2pipe/paths.yaml`（指向你的仓库、autism_test 环境、MotionBERT/despite ckpt）。
+  - 完整解读：`docs/sim2pipe_findings_v1.md`；早期 probe 版：`docs/sim2real_findings_v1.md`。
+- 局限：单测试床（TotalCapture）、单窗口（w24）、指标是检索 top1 而非 FrameAcc（绝对数受 batch 大小影响，
+  但**排名和增益的定性结论稳健**）；估计骨架未真实标定。这些都不影响两条核心定性结论——
+  "现有生成器无迁移价值"和"主因是信号语义"。
