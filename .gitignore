@@ -52,5 +52,11 @@ outputs/sim2pipe_normabl/*
 outputs/sim2pipe_normabl/*/*
 !outputs/sim2pipe_normabl/*/results.jsonl
 
+!outputs/sim2pipe_shuffle_floor/
+outputs/sim2pipe_shuffle_floor/*
+!outputs/sim2pipe_shuffle_floor/*/
+outputs/sim2pipe_shuffle_floor/*/*
+!outputs/sim2pipe_shuffle_floor/*/results.jsonl
+
 # transient run logs
 logs_*.log
