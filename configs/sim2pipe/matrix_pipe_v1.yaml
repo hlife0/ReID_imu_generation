@@ -1,0 +1,19 @@
+# sim2pipe P1 pipe-probe matrix v1 (design §3/§6, ≤21 cells).
+# Cell key = (protocol, imu_stream, motion_source, seed); ledger-resumable.
+# Streams are corpus imu/ filenames; hashes match sim2real matrix_v1:
+#   globalpose 42c7b0f2 = clean (all realism switches off)
+#   globalpose 8026be9d = noise_full (kept out of v1 — clean≈full per sim2real)
+
+benchmark_id: pipe_probe_tc_v1
+split: configs/sim2real/splits/totalcapture_subject_v1.json
+motion_source: motion_estimated   # estskel = faithful to the real pipeline
+seeds: [0, 42, 123]
+
+cells:
+  - {protocol: trtr, imu_stream: real.npz}
+  - {protocol: tstr, imu_stream: synth_naive_8f7d9e76.npz}
+  - {protocol: tstr, imu_stream: synth_globalpose_42c7b0f2.npz}
+  - {protocol: tstr, imu_stream: synth_humogen_e8cdbc46.npz}
+  - {protocol: mix, imu_stream: synth_naive_8f7d9e76.npz}
+  - {protocol: mix, imu_stream: synth_globalpose_42c7b0f2.npz}
+  - {protocol: mix, imu_stream: synth_humogen_e8cdbc46.npz}

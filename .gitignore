@@ -33,3 +33,14 @@ outputs/sim2real/*/l1/*
 
 third-party/*
 !third-party/README.md
+
+# sim2pipe: machine-specific paths stay local; ledger/report conventions
+# mirror sim2real (outputs rules below).
+configs/sim2pipe/paths.yaml
+!outputs/sim2pipe/
+outputs/sim2pipe/*
+!outputs/sim2pipe/*/
+outputs/sim2pipe/*/*
+!outputs/sim2pipe/*/*.md
+!outputs/sim2pipe/*/*.json
+!outputs/sim2pipe/*/results.jsonl

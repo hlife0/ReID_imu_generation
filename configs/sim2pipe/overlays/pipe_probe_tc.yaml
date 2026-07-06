@@ -1,0 +1,31 @@
+# DRAFT overlay template for a P1 pipe-probe cell (validate in N1 against a
+# real preprocess->slice->train run; keys verified 2026-07-06 against
+# src/data/preprocess/totalcapture.py and TotalCaptureAdapter).
+#
+# The driver injects per-cell values via dot-path overrides:
+#   preprocess.synthetic_imu_root, slice.root, slice.out_dir,
+#   train.seed, train.work_dir, ...
+
+project: sim2pipe_probe
+
+preprocess:
+  dataset: totalcapture_synthetic
+  imu_source: synthetic
+  synthetic_imu_root: __INJECTED__
+
+slice:
+  # Adapter defaults already match the frozen sim2real split
+  # (totalcapture_subject_v1: S1-S3 / S4 / S5); stated explicitly anyway.
+  train_subjects: "S1,S2,S3"
+  val_subjects: "S4"
+  test_subjects: "S5"
+  window_len: 24
+  stride: 16
+  sensor_order: "L_LowLeg,R_LowLeg,L_LowArm,R_LowArm"
+  skeleton_source: vicon
+  skeleton_normalize: true
+
+train:
+  seed: __INJECTED__
+  imu_sensor: R_LowArm
+  repeat_single_sensor: 4

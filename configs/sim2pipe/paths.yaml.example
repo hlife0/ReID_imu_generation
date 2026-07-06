@@ -1,0 +1,10 @@
+# Machine-specific locations for driving the main project (Rd-id-Project).
+# Copy to paths.yaml (gitignored) and adjust. 02_gate_export.py --check-deps
+# reports anything missing.
+
+main_repo: /home/hrli/ReID-workspace/Rd-id-Project
+# The main project's own environment (autism_test, aka test_reid in environment.yml); NOT this repo's python.
+main_python: /home/fzliang/miniconda3/envs/autism_test/bin/python
+# External checkpoints the main trainer loads (see its configs/*.yaml).
+motionbert_ckpt: /home/fzliang/origin/MotionBERT/checkpoint/pretrain/MB_lite_models.bin
+imu_ckpt: /home/fzliang/despite/pretrained_models/v2/SIE_v2.pth
