@@ -20,13 +20,25 @@
   （numpy 1.26）加载正常（注意：本仓库导出用 data_generation venv 的 numpy 2.x
   写 object 数组，1.26 可读，但系统 python3 的 numpy 1.x 旧版读不了——无关紧要）。
 
-## N1：P0 门禁三件套（⬜）
+## N1：P0 门禁三件套（✅ 2026-07-06）
 
-- [ ] 格式往返：导出物走主项目 preprocess→slice，窗口数与 spec 推算一致
-- [ ] 真实流锚点：real 导出 → 主项目训练，val_top1 ≫ 随机线
-- [ ] 打乱对照回落随机线
-- [ ] 验证/修正 overlay 模板 `pipe_probe_tc.yaml`（现为草案）
+- [x] 格式往返：导出物经主项目 `src.data.slice.totalcapture` 物化，37 序列 9207 窗口，无警告
+- [x] 真实流锚点：TRTR real test_top1 0.2518（≫ 随机线 0.0156，≫ 零样本地板 ~0.11）
+- [x] 打乱对照：`--shuffle_video_in_batch` 下 val_top1 压在 ~0.10–0.11 不随 epoch 上升
+- [x] overlay 模板 `pipe_probe_tc.yaml` 验为实配
+- 修正：eval.py 不接受 `--imu_ckpt`（从 checkpoint 加载），已从驱动 eval 分支删除
+- 发现：本测试床有效地板 = 冻结预训练 DeSPITE+MotionBERT 的零样本对齐 ~0.11（非 1/64）
 
-## N2：P1 pipe-probe 矩阵（⬜） — 实现 `03_run_pipe_probe.py`，≤21 格账本续跑
+## N2：P1 pipe-probe 矩阵（✅ 2026-07-06）
 
-## N3：报告（⬜） — 实现 `05_report.py`，与 sim2real probe 排名一致性判定
+- 21 格（7 流 × 3 seeds），三卡（cuda:1/2/3）并行，每格约 12 分钟 @40 epoch
+- 驱动 `03_run_pipe_probe.py`：compose→slice→train→eval 全走主项目模块（subprocess，autism_test 环境）
+- 账本续跑生效（key = protocol×stream×motion_source×seed）
+- 结果见 `docs/sim2pipe_findings_v1.md` 与 `outputs/sim2pipe/pipe_probe_tc_v1/{results.jsonl,report.md}`
+
+## N3：报告与交付（✅ 2026-07-06）
+
+- `05_report.py` 自动聚合 + probe/pipe 排名一致性判定，产出 `report.md`
+- **头版：probe 排名未幸存**——三生成器 TSTR 全塌到随机线附近（spread 0.003 < 随机线），
+  mix 无增益；probe 的 naive 优势与 +141% mix 增益都是量具假象
+- 交付含义写入 findings：I4/I5 用当前生成器不奏效，首要杠杆 = F2 比力变体（优先复跑 sim2pipe）

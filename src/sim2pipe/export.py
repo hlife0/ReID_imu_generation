@@ -132,6 +132,87 @@ def stream_token(imu_filename: str) -> str:
     return Path(imu_filename).stem
 
 
+REAL_STREAM = "real.npz"
+
+
+def export_protocol(
+    corpus_root: Path,
+    protocol: str,
+    imu_stream: str,
+    motion_source: str,
+    split,
+    out_root: Path,
+    camera: str = "cam1",
+) -> tuple[Path, dict]:
+    """Compose one main-project ``sequences/`` dir for a protocol cell.
+
+    The main repo's slice splits a single sequence set by subject, so the
+    protocol is realized by *which IMU stream each subject carries*:
+
+    * ``trtr`` — real everywhere (upper bound / anchor).
+    * ``tstr`` — train subjects carry ``imu_stream`` (synthetic); val/test
+      subjects carry real. val/test are always real (honest TSTR).
+    * ``mix``  — train subjects carry BOTH real and ``imu_stream`` as two
+      sequences with distinct ids; val/test carry real.
+
+    Returns ``(sequences_parent_dir, manifest)``. ``sequences_parent_dir``
+    is what the slice config's ``slice.root`` should point at (it contains
+    a ``sequences/`` subdir); slice writes windows_{train,val,test}.csv.
+    """
+    if protocol not in ("trtr", "tstr", "mix"):
+        raise ValueError(f"unknown protocol {protocol!r}")
+    corpus_root = Path(corpus_root)
+    cell_dir = Path(out_root)
+    seq_dir = cell_dir / "sequences"
+    if seq_dir.exists():
+        import shutil
+
+        shutil.rmtree(seq_dir)
+    seq_dir.mkdir(parents=True)
+
+    counts = {"train_real": 0, "train_synth": 0, "val_real": 0, "test_real": 0, "skipped": []}
+    for corpus_seq in sorted(p for p in corpus_root.iterdir() if p.is_dir()):
+        subject, _session = split_corpus_dirname(corpus_seq.name)
+        try:
+            which = split.split_of_subject(subject)
+        except KeyError:
+            counts["skipped"].append(corpus_seq.name)
+            continue
+
+        def _emit(stream_file: str, tag: str | None) -> bool:
+            if not (corpus_seq / "imu" / stream_file).exists():
+                return False
+            cam = camera if tag is None else f"{camera}-{tag}"
+            export_sequence(corpus_seq, stream_file, motion_source, seq_dir, camera=cam)
+            return True
+
+        if which == "train":
+            if protocol == "trtr":
+                counts["train_real"] += int(_emit(REAL_STREAM, None))
+            elif protocol == "tstr":
+                counts["train_synth"] += int(_emit(imu_stream, None))
+            else:  # mix
+                counts["train_real"] += int(_emit(REAL_STREAM, None))
+                counts["train_synth"] += int(_emit(imu_stream, "synth"))
+        else:  # val / test always real
+            if _emit(REAL_STREAM, None):
+                counts[f"{which}_real"] += 1
+
+    manifest = {
+        "protocol": protocol,
+        "imu_stream": stream_token(imu_stream),
+        "motion_source": motion_source,
+        "split": split.name,
+        "counts": counts,
+    }
+    if counts["val_real"] == 0 or counts["test_real"] == 0:
+        raise RuntimeError(f"protocol {protocol}: empty val/test after composition: {counts}")
+    if protocol != "trtr" and counts["train_synth"] == 0:
+        raise RuntimeError(f"protocol {protocol}: no synthetic train sequences for {imu_stream}: {counts}")
+    (cell_dir / "compose_manifest.json").write_text(json.dumps(manifest, indent=2))
+    return cell_dir, manifest
+
+
 def export_corpus(
     corpus_root: Path,
     imu_filename: str,

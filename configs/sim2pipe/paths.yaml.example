@@ -8,3 +8,6 @@ main_python: /home/fzliang/miniconda3/envs/autism_test/bin/python
 # External checkpoints the main trainer loads (see its configs/*.yaml).
 motionbert_ckpt: /home/fzliang/origin/MotionBERT/checkpoint/pretrain/MB_lite_models.bin
 imu_ckpt: /home/fzliang/despite/pretrained_models/v2/SIE_v2.pth
+
+# MotionBERT repo root (--motionbert_root); ckpt path above is relative to it.
+motionbert_root: /home/fzliang/origin/MotionBERT
