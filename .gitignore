@@ -44,3 +44,10 @@ outputs/sim2pipe/*/*
 !outputs/sim2pipe/*/*.md
 !outputs/sim2pipe/*/*.json
 !outputs/sim2pipe/*/results.jsonl
+
+# sim2pipe normalization ablation: keep ledger only
+!outputs/sim2pipe_normabl/
+outputs/sim2pipe_normabl/*
+!outputs/sim2pipe_normabl/*/
+outputs/sim2pipe_normabl/*/*
+!outputs/sim2pipe_normabl/*/results.jsonl

@@ -50,6 +50,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--seeds", nargs="*", type=int, help="override matrix seeds")
     p.add_argument("--shuffle-control", action="store_true",
                    help="add --shuffle_video_in_batch to train (P0 shuffled-pairs control)")
+    p.add_argument("--imu-stats-json", default="",
+                   help="normalization ablation: use these fixed imu stats for train+eval "
+                        "instead of computing from the (synthetic) train source")
+    p.add_argument("--run-tag-suffix", default="",
+                   help="appended to each cell tag / work dir to keep ablation runs distinct")
     return p.parse_args()
 
 
@@ -71,6 +76,8 @@ def run_cell(args, paths: PipePaths, split, cell: dict, seed: int, ledger: Path)
     tag = f"{protocol}__{stream_tok}__{motion_source}__s{seed}"
     if args.shuffle_control:
         tag += "__shuf"
+    if args.run_tag_suffix:
+        tag += f"__{args.run_tag_suffix}"
     work = _abs(args.work_root) / tag
     slice_out = work / "slice"
     train_out = work / "train"
@@ -119,6 +126,10 @@ def run_cell(args, paths: PipePaths, split, cell: dict, seed: int, ledger: Path)
         "--device", args.device, "--seed", str(seed),
         "--output_root", str(train_out), "--run_name", tag,
     ]
+    if args.imu_stats_json:
+        # normalization ablation: fixed stats override the train-source computation
+        train_argv.remove("--compute_imu_stats")
+        train_argv += ["--imu_stats_json", str(_abs(args.imu_stats_json))]
     mb_root = paths.extra.get("motionbert_root")
     if mb_root:
         train_argv += ["--motionbert_root", str(mb_root)]
@@ -161,6 +172,7 @@ def run_cell(args, paths: PipePaths, split, cell: dict, seed: int, ledger: Path)
         "test_num_windows": int(test_metrics.get("num_windows", 0)),
         "random_line": 1.0 / float(args.batch_size),
         "shuffle_control": bool(args.shuffle_control),
+        "norm_source": "real_fixed" if args.imu_stats_json else "synth_trainsrc",
         "epochs": args.epochs,
         "batch_size": args.batch_size,
         "work": str(work),
