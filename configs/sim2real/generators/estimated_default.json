@@ -1,0 +1,17 @@
+{
+  "generator": "estimated_skeleton",
+  "seed": 0,
+  "jitter_sigma_m": 0.015,
+  "end_effector_sigma_mult": 2.3,
+  "temporal_smooth_alpha": 0.35,
+  "occlusion_rate_per_joint": 0.02,
+  "occlusion_len_mean_frames": 6.0,
+  "fps_assumed": 60.0,
+  "_notes": [
+    "Literature-default pose-estimator degradation for the estskel variant.",
+    "jitter_sigma_m=0.015 -> torso ~15mm, end-effectors ~35mm (x2.3) per-joint Gaussian, matching typical AlphaPose+MotionBERT lift error.",
+    "temporal_smooth_alpha=0.35: causal EMA mimicking MotionBERT temporal smoothing.",
+    "occlusion_rate_per_joint=0.02/s with geometric mean run 6 frames: missed detections / occlusion gaps, linearly interpolated.",
+    "RECALIBRATE against real custom AlphaPose extract_skeleton output when available (see plan open-items)."
+  ]
+}

@@ -134,5 +134,73 @@ class ManifestTest(unittest.TestCase):
         self.assertEqual(loaded["extra"]["sequence"], "S1_freestyle3")
 
 
+class EstimatedSkeletonTest(unittest.TestCase):
+    def _fake_skeleton(self, frames: int = 40) -> np.ndarray:
+        from src.sim2real.gen_estimated import PIPELINE_JOINT_NAMES
+
+        rng = np.random.default_rng(7)
+        base = rng.normal(0.0, 0.5, size=(1, len(PIPELINE_JOINT_NAMES), 3)).astype(np.float32)
+        drift = np.linspace(0, 1, frames, dtype=np.float32)[:, None, None]
+        return (base + 0.1 * drift).astype(np.float32)
+
+    def test_retarget_shape_and_layout(self) -> None:
+        from src.sim2real.gen_estimated import H36M17_JOINT_NAMES, retarget_21_to_h36m17
+
+        out = retarget_21_to_h36m17(self._fake_skeleton())
+        self.assertEqual(out.shape[1:], (17, 3))
+        self.assertEqual(len(H36M17_JOINT_NAMES), 17)
+        self.assertTrue(np.isfinite(out).all())
+
+    def test_retarget_directly_copies_shared_joints(self) -> None:
+        from src.sim2real.gen_estimated import (
+            H36M17_JOINT_NAMES,
+            PIPELINE_JOINT_NAMES,
+            retarget_21_to_h36m17,
+        )
+
+        skel = self._fake_skeleton()
+        out = retarget_21_to_h36m17(skel)
+        pipe_idx = {n: i for i, n in enumerate(PIPELINE_JOINT_NAMES)}
+        rw_out = H36M17_JOINT_NAMES.index("right_wrist")
+        np.testing.assert_array_equal(out[:, rw_out], skel[:, pipe_idx["right_wrist"]])
+
+    def test_degrade_is_deterministic_and_seed_sensitive(self) -> None:
+        from src.sim2real.gen_estimated import degrade_skeleton
+
+        skel = self._fake_skeleton()
+        a = degrade_skeleton(skel, {"seed": 5})
+        b = degrade_skeleton(skel, {"seed": 5})
+        c = degrade_skeleton(skel, {"seed": 6})
+        self.assertEqual(a.shape[1:], (17, 3))
+        np.testing.assert_array_equal(a, b)
+        self.assertFalse(np.array_equal(a, c))
+        self.assertTrue(np.isfinite(a).all())
+
+    def test_degraded_skeleton_passes_motion_contract(self) -> None:
+        from src.sim2real.contracts import MotionSequence
+        from src.sim2real.gen_estimated import ESTIMATED_LAYOUT, degrade_skeleton
+
+        joints = degrade_skeleton(self._fake_skeleton(), {"seed": 0})
+        seq = MotionSequence(joints=joints, fps=60.0, joint_layout=ESTIMATED_LAYOUT)
+        self.assertEqual(seq.joints.shape[1], 17)
+        self.assertEqual(seq.joint_layout, ESTIMATED_LAYOUT)
+
+    def test_end_effectors_noisier_than_torso(self) -> None:
+        from src.sim2real.gen_estimated import (
+            H36M17_JOINT_NAMES,
+            degrade_skeleton,
+            retarget_21_to_h36m17,
+        )
+
+        skel = self._fake_skeleton(frames=200)
+        base = retarget_21_to_h36m17(skel)
+        est = degrade_skeleton(skel, {"seed": 1, "occlusion_rate_per_joint": 0.0,
+                                       "temporal_smooth_alpha": 0.0})
+        disp = np.linalg.norm(est - base, axis=2).mean(axis=0)  # (J,)
+        rw = disp[H36M17_JOINT_NAMES.index("right_wrist")]
+        spine = disp[H36M17_JOINT_NAMES.index("spine")]
+        self.assertGreater(rw, spine)
+
+
 if __name__ == "__main__":
     unittest.main()

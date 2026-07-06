@@ -1,0 +1,41 @@
+# sim2real experiment matrix v1 — executed by scripts/sim2real/06_run_matrix.py (M4).
+#
+# One cell = one (protocol, train composition, real_fraction, seed) run.
+# Completed cells (present in results.jsonl) are skipped on re-run.
+#
+# Source tokens (config hashes back-filled from the M1 corpus manifests):
+#   synth_globalpose_42c7b0f2  = globalpose, full realism stack (noise_full)
+#   synth_globalpose_8026be9d  = globalpose, all realism modules off (clean)
+#   synth_humogen_e8cdbc46     = humogen default
+#   synth_naive_8f7d9e76       = naive kinematics
+
+benchmark: tc_rlowarm_w24_estskel_v1
+seeds: [0, 42, 123]
+
+cells:
+  # Sanity anchor + upper reference; also the real-only baseline at reduced
+  # real-data budgets (the denominator of the sim-boost curve).
+  - {protocol: trtr, train: [real]}
+  - {protocol: trtr, train: [real], real_fraction: [0.1, 0.25]}
+
+  # Headline ranking: which generator transfers best to real IMU.
+  - {protocol: tstr, train: [synth_globalpose_42c7b0f2]}
+  - {protocol: tstr, train: [synth_globalpose_8026be9d]}
+  - {protocol: tstr, train: [synth_humogen_e8cdbc46]}
+  - {protocol: tstr, train: [synth_naive_8f7d9e76]}
+
+  # Main-project I4 analogue: synthetic as augmentation on top of real.
+  - {protocol: mix, train: [real, synth_globalpose_42c7b0f2]}
+  - {protocol: mix, train: [real, synth_naive_8f7d9e76]}
+
+  # Main-project I5 analogue: synthetic pretraining + real finetuning.
+  # real_fraction sweep yields the sim-boost curve.
+  - {protocol: pretrain_finetune, pretrain: [synth_globalpose_42c7b0f2],
+     train: [real], real_fraction: [0.1, 0.25, 1.0]}
+  - {protocol: pretrain_finetune, pretrain: [synth_naive_8f7d9e76],
+     train: [real], real_fraction: [0.1, 0.25, 1.0]}
+
+controls:
+  # Leakage tripwire: probe trained on mismatched pairs must fall to chance.
+  # Verified 2026-07-05: R@1 = 0.001 = chance. Re-run with the matrix.
+  shuffled_pairs: true

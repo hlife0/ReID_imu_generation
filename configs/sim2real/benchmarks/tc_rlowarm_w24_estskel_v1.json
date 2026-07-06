@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "benchmark_id": "tc_rlowarm_w24_estskel_v1",
+  "dataset": "totalcapture",
+  "sensor": "R_LowArm",
+  "split_file": "configs/sim2real/splits/totalcapture_subject_v1.json",
+  "motion_source": "motion_estimated",
+  "window_len": 24,
+  "stride": 16,
+  "target_fps": 60.0,
+  "channels": ["acc_x", "acc_y", "acc_z", "gyro_x", "gyro_y", "gyro_z"],
+  "normalization": {
+    "kind": "zscore_per_channel",
+    "stats_from": "train_source"
+  },
+  "gate": {
+    "min_acc_mag_pearson": 0.10,
+    "min_gyro_mag_pearson": 0.10,
+    "max_tail_trim_ratio": 0.10
+  },
+  "_gate_calibration": {
+    "calibrated_on": "S1_freestyle3 (known-good sample, 2026-07-05)",
+    "measured": {
+      "synth_globalpose_noise_full": {"acc_mag_pearson": 0.550, "gyro_mag_pearson": 0.352},
+      "synth_globalpose_clean": {"acc_mag_pearson": 0.625, "gyro_mag_pearson": 0.352},
+      "synth_humogen_default": {"acc_mag_pearson": 0.300, "gyro_mag_pearson": 0.269},
+      "synth_naive_default": {"acc_mag_pearson": 0.975, "gyro_mag_pearson": 0.269}
+    },
+    "notes": "IMU gate is identical to tc_rlowarm_w24_v1 — the IMU streams are the same; only the motion (skeleton) target changes. Fail rule: acc AND gyro magnitude correlation must BOTH fall below the floor."
+  },
+  "_notes": [
+    "estskel variant of tc_rlowarm_w24_v1: the ONLY difference is motion_source=motion_estimated (17-joint H36M estimated skeleton) instead of the default 21-joint ground-truth 'motion'.",
+    "Purpose: does the naive-wins-TSTR / mix-+37% conclusion survive when the skeleton side is degraded like a real AlphaPose+MotionBERT pipeline? Compare report against tc_rlowarm_w24_v1.",
+    "Requires scripts/sim2real/01b_build_estimated_skeleton.py to have written motion_estimated.npz into every corpus sequence dir first.",
+    "window_len=24 / stride=16 / channels / split / gate all identical to tc_rlowarm_w24_v1 so motion source is the single controlled variable."
+  ]
+}

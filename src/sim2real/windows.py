@@ -96,6 +96,10 @@ def materialize_benchmark(benchmark_spec_path: Path, corpus_root: Path, windows_
     target_fps = float(spec["target_fps"])
     channels = list(spec["channels"])
     channel_idx = [IMU_CHANNELS_13.index(c) for c in channels]
+    # Which per-sequence motion file to pair IMU against. Defaults to the
+    # ground-truth "motion" stream so pre-estskel benchmarks are unchanged;
+    # the estskel benchmark sets this to "motion_estimated" (H36M-17).
+    motion_source = str(spec.get("motion_source", "motion"))
 
     split_path = spec_path.parent.parent.parent.parent / spec["split_file"]
     split = load_split(split_path)
@@ -111,7 +115,7 @@ def materialize_benchmark(benchmark_spec_path: Path, corpus_root: Path, windows_
         meta = json.loads(meta_path.read_text(encoding="utf-8"))
         seq, subject, seq_split = meta["sequence"], meta["subject"], meta["split"]
         seq_dir = meta_path.parent
-        motion = MotionSequence.load(seq_dir / "motion.npz")
+        motion = MotionSequence.load(seq_dir / f"{motion_source}.npz")
         gate = (meta.get("gate") or {}).get("streams", {})
 
         stream_paths = [seq_dir / "imu" / "real.npz"]
