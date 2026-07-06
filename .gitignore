@@ -58,5 +58,11 @@ outputs/sim2pipe_shuffle_floor/*
 outputs/sim2pipe_shuffle_floor/*/*
 !outputs/sim2pipe_shuffle_floor/*/results.jsonl
 
+!outputs/sim2pipe_true_floor/
+outputs/sim2pipe_true_floor/*
+!outputs/sim2pipe_true_floor/*/
+outputs/sim2pipe_true_floor/*/*
+!outputs/sim2pipe_true_floor/*/results.jsonl
+
 # transient run logs
 logs_*.log

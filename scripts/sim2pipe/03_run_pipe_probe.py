@@ -50,6 +50,10 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--seeds", nargs="*", type=int, help="override matrix seeds")
     p.add_argument("--shuffle-control", action="store_true",
                    help="add --shuffle_video_in_batch to train (P0 shuffled-pairs control)")
+    p.add_argument("--destroy-pairing", action="store_true",
+                   help="add --destroy_pairing_in_batch to train (GENUINE pairing-destruction "
+                        "floor: shuffle video without relabeling targets). Use a distinct "
+                        "--outputs-root since the ledger cell key ignores this flag.")
     p.add_argument("--imu-stats-json", default="",
                    help="normalization ablation: use these fixed imu stats for train+eval "
                         "instead of computing from the (synthetic) train source")
@@ -76,6 +80,8 @@ def run_cell(args, paths: PipePaths, split, cell: dict, seed: int, ledger: Path)
     tag = f"{protocol}__{stream_tok}__{motion_source}__s{seed}"
     if args.shuffle_control:
         tag += "__shuf"
+    if args.destroy_pairing:
+        tag += "__destroy"
     if args.run_tag_suffix:
         tag += f"__{args.run_tag_suffix}"
     work = _abs(args.work_root) / tag
@@ -135,6 +141,8 @@ def run_cell(args, paths: PipePaths, split, cell: dict, seed: int, ledger: Path)
         train_argv += ["--motionbert_root", str(mb_root)]
     if args.shuffle_control:
         train_argv.append("--shuffle_video_in_batch")
+    if args.destroy_pairing:
+        train_argv.append("--destroy_pairing_in_batch")
     r = run_main_module(paths, "src.engine.train", train_argv, log_path=work / "train.log")
     if r.returncode != 0:
         raise RuntimeError(f"train failed for {tag}; see {work/'train.log'}")
@@ -172,6 +180,7 @@ def run_cell(args, paths: PipePaths, split, cell: dict, seed: int, ledger: Path)
         "test_num_windows": int(test_metrics.get("num_windows", 0)),
         "random_line": 1.0 / float(args.batch_size),
         "shuffle_control": bool(args.shuffle_control),
+        "destroy_pairing": bool(args.destroy_pairing),
         "norm_source": "real_fixed" if args.imu_stats_json else "synth_trainsrc",
         "epochs": args.epochs,
         "batch_size": args.batch_size,
