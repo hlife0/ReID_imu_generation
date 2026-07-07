@@ -28,6 +28,7 @@ from pathlib import Path
 
 import numpy as np
 
+from .alignment import aligned_slices, lag_from_meta
 from .contracts import ImuSequence
 
 ACC_SLICE = slice(4, 7)
@@ -55,21 +56,33 @@ def check_thresholds(thresholds: dict) -> None:
         )
 
 
-def gate_stream(real: ImuSequence, synth: ImuSequence, thresholds: dict) -> dict:
-    """PASS/FAIL one synthetic stream against the real stream (tail-aligned)."""
+def gate_stream(real: ImuSequence, synth: ImuSequence, thresholds: dict,
+                lag: int | None = None) -> dict:
+    """PASS/FAIL one synthetic stream against the real stream.
+
+    ``lag`` is the per-sequence ``imu_motion_lag`` (real[i] <-> motion[i+lag];
+    synthetic streams live on the motion timebase, so the same lag applies).
+    ``None`` falls back to the legacy tail alignment (pre-01c corpora).
+    """
     reasons = []
     if abs(real.fps - synth.fps) > 1e-6:
         reasons.append(f"fps mismatch: real={real.fps} synth={synth.fps}")
 
-    frames = min(real.num_frames, synth.num_frames)
+    if lag is None:
+        frames = min(real.num_frames, synth.num_frames)
+        sl_r = sl_s = slice(-frames, None)
+    else:
+        sl_r, sl_s = aligned_slices(real.num_frames, synth.num_frames, lag)
+        frames = sl_r.stop - sl_r.start
     trim_ratio = 1.0 - frames / max(real.num_frames, synth.num_frames)
     if trim_ratio > thresholds["max_tail_trim_ratio"]:
         reasons.append(f"tail trim ratio {trim_ratio:.3f} > {thresholds['max_tail_trim_ratio']}")
 
-    r, g = real.data[-frames:], synth.data[-frames:]
+    r, g = real.data[sl_r], synth.data[sl_s]
     metrics = {
         "frames_aligned": int(frames),
         "tail_trim_ratio": round(float(trim_ratio), 4),
+        "lag_applied": lag,
         "acc_mag_pearson": round(_pearson(_magnitude(r, ACC_SLICE), _magnitude(g, ACC_SLICE)), 4),
         "gyro_mag_pearson": round(_pearson(_magnitude(r, GYRO_SLICE), _magnitude(g, GYRO_SLICE)), 4),
     }
@@ -90,19 +103,25 @@ def gate_stream(real: ImuSequence, synth: ImuSequence, thresholds: dict) -> dict
 
 
 def gate_sequence(sequence_dir: Path, thresholds: dict) -> dict:
-    """Gate every synthetic stream of one corpus sequence; update its meta.json."""
+    """Gate every synthetic stream of one corpus sequence; update its meta.json.
+
+    Uses the per-sequence ``imu_motion_lag`` from meta.json when present
+    (written by 01c_estimate_alignment); legacy tail alignment otherwise.
+    """
     sequence_dir = Path(sequence_dir)
     imu_dir = sequence_dir / "imu"
     real = ImuSequence.load(imu_dir / "real.npz")
 
+    meta_path = sequence_dir / "meta.json"
+    meta = json.loads(meta_path.read_text(encoding="utf-8")) if meta_path.exists() else None
+    lag = lag_from_meta(meta) if meta else None
+
     results = {}
     for synth_path in sorted(imu_dir.glob("synth_*.npz")):
         synth = ImuSequence.load(synth_path)
-        results[synth_path.name] = gate_stream(real, synth, thresholds)
+        results[synth_path.name] = gate_stream(real, synth, thresholds, lag=lag)
 
-    meta_path = sequence_dir / "meta.json"
-    if meta_path.exists():
-        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    if meta is not None:
         meta["gate"] = {"thresholds": thresholds, "streams": results}
         meta_path.write_text(json.dumps(meta, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return results

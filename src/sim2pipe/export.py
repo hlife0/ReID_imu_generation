@@ -23,6 +23,7 @@ from pathlib import Path
 
 import numpy as np
 
+from src.sim2real.alignment import aligned_slices, lag_from_meta
 from src.sim2real.contracts import ImuSequence, MotionSequence
 from src.sim2real.gen_estimated import retarget_21_to_h36m17
 from src.sim2pipe.convert import imu_to_48, normalize_skeleton_pipe
@@ -78,11 +79,22 @@ def export_sequence(
         )
 
     imu48 = imu_to_48(imu.data, imu.channels)
-    tlen = min(imu48.shape[0], skel17.shape[0])
+    # Per-sequence temporal alignment (real[i] <-> motion[i+lag]); synthetic
+    # streams are generated on the motion timebase, so their lag is 0. Falls
+    # back to lag 0 (head alignment) when 01c has not annotated the corpus.
+    lag = 0
+    if imu.source == "real":
+        meta_path = seq_dir / "meta.json"
+        if meta_path.exists():
+            found = lag_from_meta(json.loads(meta_path.read_text(encoding="utf-8")))
+            if found is not None:
+                lag = found
+    sl_imu, sl_skel = aligned_slices(imu48.shape[0], skel17.shape[0], lag)
+    tlen = sl_imu.stop - sl_imu.start
     if tlen < 1:
         raise ValueError(f"{seq_dir.name}: empty overlap between imu and motion")
-    imu48 = imu48[:tlen]
-    skel17 = skel17[:tlen]
+    imu48 = imu48[sl_imu]
+    skel17 = skel17[sl_skel]
 
     sequence_id = f"totalcapture_{subject}_{session}_{camera}"
     out_dir = Path(out_dir)
@@ -121,6 +133,7 @@ def export_sequence(
             "motion_source": motion_source,
             "sensor": imu.sensor,
             "fps": imu.fps,
+            "imu_motion_lag": int(lag),
         },
     }
     npz_path.with_suffix(".json").write_text(json.dumps(meta, indent=2))

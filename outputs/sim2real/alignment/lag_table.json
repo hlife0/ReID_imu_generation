@@ -1,0 +1,303 @@
+{
+  "rows": [
+    {
+      "sequence": "S1_acting1",
+      "real_frames": 4115,
+      "motion_frames": 4114,
+      "imu_motion_lag": -1,
+      "acc_mag_pearson": 0.9212,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S1_acting2",
+      "real_frames": 3704,
+      "motion_frames": 3703,
+      "imu_motion_lag": -1,
+      "acc_mag_pearson": 0.1199,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S1_acting3",
+      "real_frames": 2770,
+      "motion_frames": 2769,
+      "imu_motion_lag": -1,
+      "acc_mag_pearson": 0.8217,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S1_freestyle1",
+      "real_frames": 2313,
+      "motion_frames": 2311,
+      "imu_motion_lag": -1,
+      "acc_mag_pearson": 0.9549,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S1_freestyle2",
+      "real_frames": 2464,
+      "motion_frames": 2464,
+      "imu_motion_lag": -1,
+      "acc_mag_pearson": 0.8502,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S1_freestyle3",
+      "real_frames": 2040,
+      "motion_frames": 2040,
+      "imu_motion_lag": 0,
+      "acc_mag_pearson": 0.9751,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S1_rom1",
+      "real_frames": 4892,
+      "motion_frames": 4891,
+      "imu_motion_lag": 0,
+      "acc_mag_pearson": 0.8813,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S1_rom2",
+      "real_frames": 6777,
+      "motion_frames": 6776,
+      "imu_motion_lag": -1,
+      "acc_mag_pearson": 0.8975,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S1_rom3",
+      "real_frames": 5944,
+      "motion_frames": 5942,
+      "imu_motion_lag": -1,
+      "acc_mag_pearson": 0.9705,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S1_walking1",
+      "real_frames": 3671,
+      "motion_frames": 3671,
+      "imu_motion_lag": 0,
+      "acc_mag_pearson": 0.9266,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S1_walking2",
+      "real_frames": 3189,
+      "motion_frames": 3189,
+      "imu_motion_lag": 0,
+      "acc_mag_pearson": 0.583,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S1_walking3",
+      "real_frames": 3397,
+      "motion_frames": 3397,
+      "imu_motion_lag": 0,
+      "acc_mag_pearson": 0.3899,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S2_acting1",
+      "real_frames": 3387,
+      "motion_frames": 3386,
+      "imu_motion_lag": -1,
+      "acc_mag_pearson": 0.9354,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S2_acting2",
+      "real_frames": 3808,
+      "motion_frames": 3809,
+      "imu_motion_lag": 0,
+      "acc_mag_pearson": 0.9727,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S2_acting3",
+      "real_frames": 4828,
+      "motion_frames": 4827,
+      "imu_motion_lag": -2,
+      "acc_mag_pearson": 0.875,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S2_freestyle2",
+      "real_frames": 2092,
+      "motion_frames": 2090,
+      "imu_motion_lag": -3,
+      "acc_mag_pearson": 0.8712,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S2_rom1",
+      "real_frames": 6419,
+      "motion_frames": 6421,
+      "imu_motion_lag": 2,
+      "acc_mag_pearson": 0.672,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S2_rom2",
+      "real_frames": 5939,
+      "motion_frames": 5938,
+      "imu_motion_lag": 1,
+      "acc_mag_pearson": 0.8326,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S2_rom3",
+      "real_frames": 5993,
+      "motion_frames": 5994,
+      "imu_motion_lag": 0,
+      "acc_mag_pearson": 0.7808,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S2_walking1",
+      "real_frames": 3518,
+      "motion_frames": 3518,
+      "imu_motion_lag": -1,
+      "acc_mag_pearson": 0.8451,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S2_walking2",
+      "real_frames": 3575,
+      "motion_frames": 3575,
+      "imu_motion_lag": 0,
+      "acc_mag_pearson": 0.9443,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S2_walking3",
+      "real_frames": 3553,
+      "motion_frames": 3551,
+      "imu_motion_lag": -1,
+      "acc_mag_pearson": 0.879,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S3_acting2",
+      "real_frames": 3712,
+      "motion_frames": 3712,
+      "imu_motion_lag": -1,
+      "acc_mag_pearson": 0.9625,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S3_rom1",
+      "real_frames": 5700,
+      "motion_frames": 5699,
+      "imu_motion_lag": -1,
+      "acc_mag_pearson": 0.9618,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S3_rom2",
+      "real_frames": 5319,
+      "motion_frames": 5319,
+      "imu_motion_lag": 0,
+      "acc_mag_pearson": 0.976,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S3_rom3",
+      "real_frames": 4858,
+      "motion_frames": 4859,
+      "imu_motion_lag": -1,
+      "acc_mag_pearson": 0.9722,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S3_walking1",
+      "real_frames": 3538,
+      "motion_frames": 3538,
+      "imu_motion_lag": -1,
+      "acc_mag_pearson": 0.6314,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S3_walking2",
+      "real_frames": 3239,
+      "motion_frames": 3238,
+      "imu_motion_lag": -1,
+      "acc_mag_pearson": 0.8999,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S3_walking3",
+      "real_frames": 3388,
+      "motion_frames": 3387,
+      "imu_motion_lag": -1,
+      "acc_mag_pearson": 0.9781,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S4_freestyle1",
+      "real_frames": 2020,
+      "motion_frames": 2019,
+      "imu_motion_lag": -1,
+      "acc_mag_pearson": 0.8557,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S4_freestyle3",
+      "real_frames": 2826,
+      "motion_frames": 2826,
+      "imu_motion_lag": -1,
+      "acc_mag_pearson": 0.9118,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S4_rom3",
+      "real_frames": 5430,
+      "motion_frames": 5430,
+      "imu_motion_lag": -1,
+      "acc_mag_pearson": 0.8868,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S4_walking2",
+      "real_frames": 3376,
+      "motion_frames": 3377,
+      "imu_motion_lag": 1,
+      "acc_mag_pearson": 0.9192,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S5_freestyle1",
+      "real_frames": 3073,
+      "motion_frames": 3073,
+      "imu_motion_lag": 0,
+      "acc_mag_pearson": 0.9805,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S5_freestyle3",
+      "real_frames": 3561,
+      "motion_frames": 3605,
+      "imu_motion_lag": 44,
+      "acc_mag_pearson": 0.9409,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S5_rom3",
+      "real_frames": 5758,
+      "motion_frames": 5756,
+      "imu_motion_lag": -1,
+      "acc_mag_pearson": 0.9513,
+      "legacy_alignment": "tail"
+    },
+    {
+      "sequence": "S5_walking2",
+      "real_frames": 3738,
+      "motion_frames": 3737,
+      "imu_motion_lag": 0,
+      "acc_mag_pearson": 0.6703,
+      "legacy_alignment": "tail"
+    }
+  ],
+  "warnings": [
+    "S1_acting2: bridge corr 0.120 < 0.3"
+  ]
+}

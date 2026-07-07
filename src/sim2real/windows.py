@@ -28,6 +28,7 @@ from pathlib import Path
 
 import numpy as np
 
+from .alignment import aligned_slices, lag_from_meta
 from .contracts import (
     IMU_CHANNELS_13,
     REAL_SOURCE,
@@ -136,11 +137,23 @@ def materialize_benchmark(benchmark_spec_path: Path, corpus_root: Path, windows_
                                  "reason": f"fps != target ({imu.fps}/{motion.fps} vs {target_fps})"})
                 continue
 
-            n = min(imu.num_frames, motion.num_frames)
+            # Per-sequence temporal alignment (real[i] <-> motion[i+lag]);
+            # synthetic streams are generated on the motion timebase (lag 0).
+            if imu.source == REAL_SOURCE:
+                lag = lag_from_meta(meta)
+                if lag is None:
+                    raise RuntimeError(
+                        f"{seq}: meta.json has no per-sequence alignment; run "
+                        "scripts/sim2real/01c_estimate_alignment.py before building windows"
+                    )
+            else:
+                lag = 0
+            sl_imu, sl_motion = aligned_slices(imu.num_frames, motion.num_frames, lag)
+            n = sl_imu.stop - sl_imu.start
             starts = window_starts(n, window_len, stride)
-            imu_w = extract_windows(imu.data[-n:][:, channel_idx], starts, window_len)
+            imu_w = extract_windows(imu.data[sl_imu][:, channel_idx], starts, window_len)
             motion_w = center_motion_windows(
-                extract_windows(motion.joints[-n:], starts, window_len)
+                extract_windows(motion.joints[sl_motion], starts, window_len)
             )
             bucket = buckets.setdefault((seq_split, token), {
                 "imu": [], "motion": [], "sequence": [], "subject": [], "start": [],
