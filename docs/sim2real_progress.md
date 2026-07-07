@@ -15,7 +15,9 @@
 - ✅ M1 门禁：规则 = acc 与 gyro 幅值相关**同时**低于 0.10 才判配对断裂；148 流全 PASS，
   16 条单通道弱（10 条 humogen，重力轴问题）记录为 weak_channels 保留进基准。
 - ✅ M2 窗口：train 7353 窗 × 5 源 / val 849 / test 1005；泄漏检查干净；
-  L1 表（Fréchet：globalpose 448 < clean 517 < naive 1138 < humogen 1485）。
+  L1 表（Fréchet：globalpose_clean 448 < noise_full 517 < naive 1138 < humogen 1485；
+  2026-07-07 更正：原文写作 "globalpose 448 < clean 517"，clean/noise_full 标签反了——
+  config_hash 复算真值为 42c7b0f2=clean、8026be9d=noise_full）。
 - ✅ M3/M4 矩阵：46 格全部完成（4×4090 并行，单格 3–12 秒）。
   **TRTR 0.0395±0.0066（40×随机线）；TSTR：naive 0.0226 ≫ humogen 0.0023 ≈ globalpose 0.0013；
   mix 真实+naive 0.0541（+37% 相对 TRTR）；打乱配对对照 = 随机线 ✅。**

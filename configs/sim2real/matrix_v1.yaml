@@ -4,8 +4,9 @@
 # Completed cells (present in results.jsonl) are skipped on re-run.
 #
 # Source tokens (config hashes back-filled from the M1 corpus manifests):
-#   synth_globalpose_42c7b0f2  = globalpose, full realism stack (noise_full)
-#   synth_globalpose_8026be9d  = globalpose, all realism modules off (clean)
+#   synth_globalpose_42c7b0f2  = globalpose, all realism modules off (clean)
+#   synth_globalpose_8026be9d  = globalpose, full realism stack (noise_full)
+#   (2026-07-07 更正：此前两行 clean/noise_full 写反，真值由 config_hash 复算确认)
 #   synth_humogen_e8cdbc46     = humogen default
 #   synth_naive_8f7d9e76       = naive kinematics
 
