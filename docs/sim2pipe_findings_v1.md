@@ -36,7 +36,8 @@
 "崩溃不是归一化域移、是信号语义/坐标系硬 gap"结论，都只依赖 TSTR≪TRTR 的**相对**对比，
 仍然成立。要撤回的只是"低于随机线/低于地板"这类**绝对判据**的措辞。
 
-**待补 → 已补（2026-07-07）**：给主项目 `train.py` 加了真正的配对破坏 flag
+**待补 → 已补（2026-07-07）**：以补丁形式（`mainproj_patches/destroy_pairing_in_batch.patch`，
+按需套用主项目、用完还原、不污染其历史/远端）给主项目 `train.py` 增加真正的配对破坏 flag
 `--destroy_pairing_in_batch`（打乱 video 但**不重标记** target，训练在错配对上；对照
 `--shuffle_video_in_batch` 的重标记版）。经 sim2pipe 驱动 `--destroy-pairing` 跑 real 流
 3 seeds（`outputs/sim2pipe_true_floor/`）：训练期 train_top1 钉在 0.0155≈随机（对照

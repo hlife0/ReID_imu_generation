@@ -1,0 +1,57 @@
+diff --git a/src/engine/train.py b/src/engine/train.py
+index 9711ad3..d817063 100644
+--- a/src/engine/train.py
++++ b/src/engine/train.py
+@@ -118,6 +118,16 @@ def parse_args() -> argparse.Namespace:
+         action="store_true",
+         help="Randomly shuffle video embeddings within each batch during training to break position bias."
+     )
++    parser.add_argument(
++        "--destroy_pairing_in_batch",
++        action="store_true",
++        help="Genuine pairing-destruction negative control: shuffle video within each "
++             "batch WITHOUT relabeling the retrieval targets, so the loss pushes each IMU "
++             "toward a WRONG video. The alignment head can learn no consistent mapping, so "
++             "held-out test accuracy falls to the frozen-encoder zero-shot floor. Unlike "
++             "--shuffle_video_in_batch (which relabels and preserves the correct pairing), "
++             "this is a true tripwire. Mutually exclusive with --shuffle_video_in_batch."
++    )
+ 
+     # Domain adversarial options
+     parser.add_argument("--num_domains", type=int, default=0,
+@@ -321,6 +331,10 @@ def evaluate_epoch(model, data_loader, loss_fn, device, domain_loss_weight: floa
+ 
+ def main() -> None:
+     args = parse_args()
++    if args.shuffle_video_in_batch and args.destroy_pairing_in_batch:
++        raise SystemExit(
++            "--shuffle_video_in_batch and --destroy_pairing_in_batch are mutually exclusive"
++        )
+     # Set random seeds
+     seed = args.seed
+     torch.manual_seed(seed)
+@@ -510,6 +524,15 @@ def main() -> None:
+                 video_global_for_loss = out["video_global"][perm] if "video_global" in out else None
+                 labels_a = perm_inv
+                 labels_b = perm
++            elif args.destroy_pairing_in_batch:
++                # Genuine tripwire: shuffle video but KEEP diagonal targets, so each IMU
++                # is trained against a wrong video. No consistent mapping is learnable.
++                B = out["imu"].shape[0]
++                perm = torch.randperm(B, device=device)
++                video_for_loss = out["video"][perm]
++                video_global_for_loss = out["video_global"][perm] if "video_global" in out else None
++                labels_a = None
++                labels_b = None
+             else:
+                 video_for_loss = out["video"]
+                 video_global_for_loss = out.get("video_global")
+@@ -546,6 +569,8 @@ def main() -> None:
+ 
+             if step == 1 and args.shuffle_video_in_batch:
+                 print(f"[DIAG] Shuffle ON | perm head={perm[:5].tolist()} | top1={acc:.4f} | random_exp={1.0/B:.4f}")
++            elif step == 1 and args.destroy_pairing_in_batch:
++                print(f"[DIAG] Destroy-pairing ON (no relabel) | top1={acc:.4f} | random_exp={1.0/out['imu'].shape[0]:.4f}")
+             elif step == 1 and not args.shuffle_video_in_batch:
+                 print(f"[DIAG] Shuffle OFF | top1={acc:.4f}")
+ 

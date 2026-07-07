@@ -52,8 +52,9 @@ def parse_args() -> argparse.Namespace:
                    help="add --shuffle_video_in_batch to train (P0 shuffled-pairs control)")
     p.add_argument("--destroy-pairing", action="store_true",
                    help="add --destroy_pairing_in_batch to train (GENUINE pairing-destruction "
-                        "floor: shuffle video without relabeling targets). Use a distinct "
-                        "--outputs-root since the ledger cell key ignores this flag.")
+                        "floor: shuffle video without relabeling targets). Requires the main "
+                        "repo to have mainproj_patches/destroy_pairing_in_batch.patch applied. "
+                        "Use a distinct --outputs-root since the ledger cell key ignores this flag.")
     p.add_argument("--imu-stats-json", default="",
                    help="normalization ablation: use these fixed imu stats for train+eval "
                         "instead of computing from the (synthetic) train source")
