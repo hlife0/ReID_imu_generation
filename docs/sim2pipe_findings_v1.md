@@ -165,3 +165,28 @@ probe R@1 就非零，于是给出乐观排名。sim2pipe 的 IMU 塔是**冻结
 **下一步（精确化）**：修复必须在**信号生成层面**，且目标不是笼统"加重力"，而是**把合成 IMU 对齐到真实
 Xsens 的坐标系与比力约定**（轴向、符号、比力 vs 自由加速度、重力投影）。我方计划的 globalpose 比力输出
 变体正是这个方向（内部记作 sim2real 发现 F2 的后续验证）。归一化鲁棒性不是杠杆。
+
+## ⚠️ 更正（2026-07-07 第二轮审查）：逐序列对齐修复后的基准数（P0-1）
+
+第二轮代码审查发现 `src/sim2pipe/export.py` 用**头对齐**截断 IMU↔骨架，而语料中
+real 与 motion 的正确偏移是逐序列的（`imu_motion_lag`，实测范围 [-3, +44]）。
+最严重的 S5_freestyle3（**test 序列**，占 test 窗口约 22%）real 比 motion 短 44 帧：
+lag 扫描显示尾对齐（lag=44）acc 幅值相关 0.94、头对齐 0.02——即此前**所有** pipe 结果
+中该序列逐窗错配 0.73s。修复：`01c_estimate_alignment.py` 逐序列估 lag 写入 meta.json，
+export/windows/gate 统一消费（commit 95251da）。重跑核心格（新输出根
+`outputs/sim2pipe_lagfix/`、`outputs/sim2pipe_true_floor_lagfix/`，3 seeds，样本标准差）：
+
+| 格 | 修复前 | 修复后 | 变化 |
+|---|---|---|---|
+| TRTR real | 0.2518±0.0067 | **0.2976±0.0105** | **+18%（S5_freestyle3 修复的量级）** |
+| 真配对破坏地板 | 0.0201±0.0041 | 0.0208±0.0027 | 不变（地板本就无配对） |
+| TSTR naive | 0.0127±0.0024 | 0.0072±0.0023 | 仍≈地板（略降） |
+| mix real+naive | 0.2406±0.0167 | 0.2934±0.0193 | ≈TRTR，仍无增益 |
+
+**所有定性结论幸存且更干净**：TRTR(0.2976) ≫ 地板(0.0208)；TSTR naive 钉在地板上
+= 零迁移；mix 无增益。本文其余小节的绝对数（TRTR 0.2518 等）均为修复前口径，引用时
+以本节为准；F2 变体一律与本节的修复后基线比较。
+
+附带发现：S1_acting2（train 序列）在任何 lag 下 real↔合成 acc 相关峰值仅 0.12
+（其余序列 0.39–0.98），疑似该序列 real↔AMASS 配对本身有问题，待查（详见
+`outputs/sim2real/alignment/lag_table.md`）。

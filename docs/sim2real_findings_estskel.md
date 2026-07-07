@@ -101,3 +101,21 @@ python3 scripts/sim2real/03_build_windows.py --benchmark configs/sim2real/benchm
 python3 scripts/sim2real/06_run_matrix.py --matrix configs/sim2real/matrix_estskel_v1.yaml --gpus 0,1,2,3,5,7
 python3 scripts/sim2real/07_report.py --benchmark-id tc_rlowarm_w24_estskel_v1
 ```
+
+## ⚠️ 更正（2026-07-07 第二轮审查）：逐序列对齐修复后的复跑对照（核心结论幸存）
+
+同 v1，lag 口径重建 windows 后全矩阵 + real+real 对照复跑
+（`outputs/sim2real_lagfix/tc_rlowarm_w24_estskel_v1/`，3 seeds，样本标准差）：
+
+| 格 | 修复前 | 修复后 |
+|---|---|---|
+| TRTR | 0.0362±0.0080 | 0.0414±0.0136 |
+| TSTR naive | 0.0172±0.0047 | 0.0156±0.0015（仍 ≫ 其余≈随机线） |
+| mix real+naive | 0.0521±0.0058 | **0.0547±0.0017（+32% vs TRTR）** |
+| mix real+globalpose(clean) | 0.0458±0.0150 | 0.0488±0.0010（+18%，E3 强化） |
+| mix real+real（对照） | 0.0305±0.0075 | 0.0375±0.0042 |
+| 打乱对照 | 0.0010 | 0.0000 |
+
+**E1（naive 排名第一）、E2/强化节（naive mix 是真信号：real+naive > TRTR > real+real）
+全部幸存**；相对增益从 +44% 收敛到 +32%（TRTR 上修所致），E3 的 globalpose(clean)
+正增益也复现且方差大幅收窄。绝对数以本节为准；定稿仍待 6 seeds + real+抖动real 控制（计划 C）。
