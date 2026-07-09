@@ -1,10 +1,10 @@
-"""L1 embedding adapters — M2 (implemented).
+"""L1 embedding adapters.
 
 ``stats_v1``: a deterministic handcrafted feature encoder — per channel:
 mean, std, min, max, RMS of the first difference, and four log-scaled rFFT
 band energies (DC excluded). 9 features x C channels. Deliberately frozen and
 model-free so L1 rankings are reproducible before the probe exists; the
-probe's IMU tower can be added as a second encoder after M3.
+probe's IMU tower can be added as a second encoder.
 """
 
 from __future__ import annotations

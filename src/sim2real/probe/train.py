@@ -1,4 +1,4 @@
-"""Probe training — M3 (implemented). Runs in the external venv (torch + GPU).
+"""Probe training. Runs in the external venv (torch + GPU).
 
 Symmetric in-batch InfoNCE; early stopping on val R@1 (val is always real).
 Fixed budget across all matrix cells. ``shuffle_pairs`` is the leakage

@@ -1,4 +1,4 @@
-"""Results aggregation and reporting — M4 (implemented).
+"""Results aggregation and reporting.
 
 Reads the append-only ledger (one JSON row per completed cell) and produces
 the headline tables: TRTR anchor, TSTR generator ranking with sim-to-real

@@ -1,4 +1,4 @@
-"""Probe retrieval evaluation — M3 (implemented). Torch; venv only."""
+"""Probe retrieval evaluation. Torch; venv only."""
 
 from __future__ import annotations
 

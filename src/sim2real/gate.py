@@ -1,4 +1,4 @@
-"""L0 gate: signal-level sanity checks on the parallel corpus — M1 (implemented).
+"""L0 gate: signal-level sanity checks on the parallel corpus.
 
 The gate's single job is to catch broken pairing/alignment (wrong sequence,
 wrong sensor, wildly different lengths, fps mismatch) BEFORE any downstream

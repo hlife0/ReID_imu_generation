@@ -1,17 +1,9 @@
-# DRAFT overlay template for a P1 pipe-probe cell (validate in N1 against a
-# real preprocess->slice->train run; keys verified 2026-07-06 against
-# src/data/preprocess/totalcapture.py and TotalCaptureAdapter).
-#
-# The driver injects per-cell values via dot-path overrides:
-#   preprocess.synthetic_imu_root, slice.root, slice.out_dir,
-#   train.seed, train.work_dir, ...
+# Overlay template for a pipe-probe cell, consumed by the main repo's
+# src.data.slice.totalcapture. The driver (03_run_pipe_probe) injects per-cell
+# values via dot-path overrides: project, work_dir, slice.root, slice.out_dir,
+# slice.{train,val,test}_subjects, train.seed.
 
 project: sim2pipe_probe
-
-preprocess:
-  dataset: totalcapture_synthetic
-  imu_source: synthetic
-  synthetic_imu_root: __INJECTED__
 
 slice:
   # Adapter defaults already match the frozen sim2real split

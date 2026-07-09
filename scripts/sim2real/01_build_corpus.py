@@ -1,4 +1,4 @@
-"""01_build_corpus — stage the parallel corpus for every available sequence (M1).
+"""01_build_corpus — stage the parallel corpus for every available sequence.
 
 Per sequence: real IMU from the per-subject aux cache, one SMPL-X forward via
 _smplx_to_motion.py (external venv), then every generator adapter fanned out

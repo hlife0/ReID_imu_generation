@@ -1,4 +1,4 @@
-"""Per-sequence IMU<->motion temporal alignment — second-review fix (P0-1).
+"""Per-sequence IMU<->motion temporal alignment.
 
 The corpus pairs a real Xsens stream (lxhong raw) with an AMASS-derived
 motion stream of a *different* length (observed offsets: mostly 0-2 frames,
@@ -21,7 +21,6 @@ Pure numpy; runs under the repo python.
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 import numpy as np
@@ -99,11 +98,3 @@ def lag_from_meta(meta: dict) -> int | None:
     if isinstance(alignment, dict) and "imu_motion_lag" in alignment:
         return int(alignment["imu_motion_lag"])
     return None
-
-
-def load_lag(sequence_dir: Path) -> int | None:
-    """Read the lag straight from ``<sequence_dir>/meta.json``."""
-    meta_path = Path(sequence_dir) / "meta.json"
-    if not meta_path.exists():
-        return None
-    return lag_from_meta(json.loads(meta_path.read_text(encoding="utf-8")))

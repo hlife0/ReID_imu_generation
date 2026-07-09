@@ -2,7 +2,7 @@
 
 One JSON object per line; aggregation only ever reads the ledger; matrix
 drivers skip cells whose key is already present (resume-first, shared-GPU
-reality). The cell key for sim2pipe P1 is
+reality). The cell key for sim2pipe is
 (protocol, imu_stream, motion_source, seed).
 """
 

@@ -1,9 +1,9 @@
 """Render main-project yaml configs from a template + explicit overrides.
 
 The template lives in ``configs/sim2pipe/overlays/`` and holds everything
-static about a pipe-probe run; the driver injects per-cell values (export
-root, work dir, seed, split subjects) via a flat dot-path override dict,
-e.g. ``{"preprocess.synthetic_imu_root": "/abs/path"}``.
+static about a pipe-probe run; the driver injects per-cell values (project,
+work dir, slice root/out_dir, split subjects, seed) via a flat dot-path
+override dict, e.g. ``{"slice.out_dir": "/abs/path", "train.seed": 0}``.
 """
 
 from __future__ import annotations

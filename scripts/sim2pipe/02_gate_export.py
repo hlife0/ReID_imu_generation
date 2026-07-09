@@ -1,12 +1,7 @@
-"""02_gate_export — P0 gate for sim2pipe (design §3).
+"""02_gate_export — dependency gate for sim2pipe.
 
-N0 scope (implemented): --check-deps reports every missing prerequisite
-(main repo, its python env, external ckpts, corpus) and exits non-zero if
-any is missing.
-
-N1 scope (not yet implemented): format round-trip through the main repo's
-preprocess/slice, the real-stream anchor training, and the shuffled-pairs
-control.
+Reports every missing prerequisite (main repo, its python env, external ckpts,
+corpus) and exits non-zero if any is missing.
 """
 
 from __future__ import annotations
@@ -26,7 +21,6 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--paths", default="configs/sim2pipe/paths.yaml")
     parser.add_argument("--corpus-root", default="data/interim/sim2real/corpus/totalcapture")
-    parser.add_argument("--check-deps", action="store_true", help="dependency check only (N0)")
     return parser.parse_args()
 
 
@@ -53,10 +47,7 @@ def main() -> None:
         sys.exit(1)
     print("Dependency check PASS: main repo, python env, ckpts, corpus all reachable.")
 
-    if not args.check_deps:
-        print("NOTE: round-trip / real-stream anchor / shuffle control are N1 scope, "
-              "not implemented yet; ran dependency check only.")
-
 
 if __name__ == "__main__":
     main()
+

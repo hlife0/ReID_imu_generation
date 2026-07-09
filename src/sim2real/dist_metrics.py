@@ -1,4 +1,4 @@
-"""L1 distribution distances between real and synthetic window sets — M2 (implemented).
+"""L1 distribution distances between real and synthetic window sets.
 
 All metrics operate on frozen-encoder embeddings of the SAME split's windows
 (real vs one synthetic source). Embeddings are standardized with the REAL

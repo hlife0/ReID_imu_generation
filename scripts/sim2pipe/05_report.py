@@ -1,4 +1,4 @@
-"""05_report — aggregate the sim2pipe ledger, compare to sim2real, write report.md (N3).
+"""05_report — aggregate the sim2pipe ledger, compare to sim2real, write report.md.
 
 Reads only results.jsonl; produces:
   * a pipe-probe ranking table (val/test top1, mean±std over seeds);
@@ -8,7 +8,6 @@ Reads only results.jsonl; produces:
 from __future__ import annotations
 
 import argparse
-import json
 import statistics as st
 import sys
 from collections import defaultdict

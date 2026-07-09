@@ -1,4 +1,4 @@
-"""03_build_windows — materialize benchmark window shards from the corpus (M2)."""
+"""03_build_windows — materialize benchmark window shards from the corpus."""
 
 from __future__ import annotations
 

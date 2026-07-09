@@ -1,4 +1,4 @@
-"""03_run_pipe_probe — drive the P1 matrix through the main project's pipeline (N2).
+"""03_run_pipe_probe — drive the matrix through the main project's pipeline.
 
 For each cell (protocol, imu_stream, motion_source, seed):
   1. compose a main-project ``sequences/`` dir realizing the protocol
@@ -30,7 +30,7 @@ import yaml
 from src.sim2real.splits import load_split
 from src.sim2pipe.bridge import PipePaths, run_main_module
 from src.sim2pipe.export import export_protocol
-from src.sim2pipe.ledger import append_row, cell_key, done_keys
+from src.sim2pipe.ledger import append_row, done_keys
 from src.sim2pipe.overlay import render_overlay
 
 
@@ -49,7 +49,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--only", nargs="*", help="restrict to stream tokens (e.g. real synth_naive_8f7d9e76)")
     p.add_argument("--seeds", nargs="*", type=int, help="override matrix seeds")
     p.add_argument("--shuffle-control", action="store_true",
-                   help="add --shuffle_video_in_batch to train (P0 shuffled-pairs control)")
+                   help="add --shuffle_video_in_batch to train (shuffled-pairs control)")
     p.add_argument("--destroy-pairing", action="store_true",
                    help="add --destroy_pairing_in_batch to train (GENUINE pairing-destruction "
                         "floor: shuffle video without relabeling targets). Requires the main "

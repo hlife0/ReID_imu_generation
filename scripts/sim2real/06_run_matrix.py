@@ -1,4 +1,4 @@
-"""06_run_matrix — execute every cell of a matrix file, resumably (M4, implemented).
+"""06_run_matrix — execute every cell of a matrix file, resumably.
 
 Runs under the repo (system) python; each cell is a subprocess of the
 CUDA-capable cell python (default: the adaptfm conda env — the data_generation

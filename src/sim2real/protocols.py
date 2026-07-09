@@ -1,4 +1,4 @@
-"""L2 protocol runners — M3 (trtr/tstr) + M4 (mix/pretrain_finetune), implemented.
+"""L2 protocol runners: trtr / tstr / mix / pretrain_finetune.
 
 Torch-dependent; runs in the external generator venv. One "cell" =
 (protocol, train composition, seed) -> probe trained per the protocol,

@@ -1,4 +1,4 @@
-"""02_gate_corpus — run the L0 gate over the parallel corpus (M1, implemented).
+"""02_gate_corpus — run the L0 gate over the parallel corpus.
 
 Reads gate thresholds from the benchmark spec (refuses to run while they are
 null), gates every (sequence, synth stream) pair, writes gate_report.json/md

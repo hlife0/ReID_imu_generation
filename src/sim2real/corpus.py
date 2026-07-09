@@ -1,4 +1,4 @@
-"""Parallel-corpus construction — milestone M1 (implemented).
+"""Parallel-corpus construction.
 
 Layer-A artifacts under ``data/interim/sim2real/corpus/totalcapture/<SEQ>/``:
 

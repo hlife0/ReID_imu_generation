@@ -1,4 +1,4 @@
-"""05_run_l2_cell — run ONE matrix cell (M3/M4, implemented).
+"""05_run_l2_cell — run ONE matrix cell.
 
 MUST be executed with the external venv python (torch + GPU), e.g.:
     /home/hrli/data_generation/.venv/bin/python scripts/sim2real/05_run_l2_cell.py \\

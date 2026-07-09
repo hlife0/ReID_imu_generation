@@ -1,4 +1,4 @@
-"""01_export_corpus — export sim2real corpus streams to main-project npz format (N0/N1).
+"""01_export_corpus — export sim2real corpus streams to main-project npz format.
 
 One export dir per (imu stream, motion source); each dir is a ready
 ``preprocess.synthetic_imu_root`` for the main repo.

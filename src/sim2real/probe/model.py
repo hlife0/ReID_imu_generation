@@ -1,4 +1,4 @@
-"""Probe architecture — M3 (implemented). Torch module; import only in the venv.
+"""Probe architecture. Torch module; import only in the venv.
 
 A deliberately small, FIXED two-tower model: the probe is a measurement
 instrument, not the research object — its capacity never changes across

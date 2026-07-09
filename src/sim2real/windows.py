@@ -1,4 +1,4 @@
-"""Window materialization (corpus layer A -> benchmark layer B) — M2 (implemented).
+"""Window materialization (corpus layer A -> benchmark layer B).
 
 Materializes ``data/interim/sim2real/windows/<benchmark_id>/``:
 

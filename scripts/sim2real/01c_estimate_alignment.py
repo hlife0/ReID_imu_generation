@@ -1,4 +1,4 @@
-"""01c_estimate_alignment — per-sequence real<->motion lag estimation (P0-1 fix).
+"""01c_estimate_alignment — per-sequence real<->motion lag estimation.
 
 For every corpus sequence, estimate ``imu_motion_lag`` (real[i] <-> motion[i+k])
 by sliding-Pearson scan of acc magnitudes, using the deterministic naive synth

@@ -1,4 +1,4 @@
-"""07_report — aggregate the results ledger into the final report (M4, implemented)."""
+"""07_report — aggregate the results ledger into the final report."""
 
 from __future__ import annotations
 

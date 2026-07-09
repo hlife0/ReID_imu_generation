@@ -1,4 +1,4 @@
-"""04_run_l1 — distribution-level metrics between real and each synth source (M2)."""
+"""04_run_l1 — distribution-level metrics between real and each synth source."""
 
 from __future__ import annotations
 
