@@ -1,9 +1,0 @@
-# Minimal end-to-end smoke matrix: baseline real and naive TSTR only.
-benchmark_id: pipe_smoke_naive_v1
-split: configs/sim2real/splits/totalcapture_subject_v1.json
-motion_source: motion_estimated
-seeds: [0]
-
-cells:
-  - {protocol: trtr, imu_stream: real.npz}
-  - {protocol: tstr, imu_stream: synth_naive_8f7d9e76.npz}
