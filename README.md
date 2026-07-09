@@ -9,6 +9,16 @@ similarity alone.
 Historical exploration (legacy generation workflows, signal-level metrics,
 surveys) is preserved on the `archive/full-history-20260709` branch.
 
+## IMU generation protocol
+
+All generators obey one contract — standardized motion input (`MotionSequence`)
+→ standardized 13-channel IMU output (`ImuSequence`), via a fixed CLI — so both
+pipelines can rank any generator with no generator-specific code. Spec:
+`docs/imu_generation_protocol.md`. Harness: `src/sim2real/gen_common.py::run_generator`.
+Reference implementation (self-contained, dependency-free):
+`scripts/sim2real/generators/naive/generate.py`. Conformance guard:
+`tests/test_generation_protocol.py`.
+
 ## sim2real — probe-level benchmark
 
 Self-contained contrastive probe (small two-tower encoder, trained from

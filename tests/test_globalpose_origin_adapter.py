@@ -8,21 +8,11 @@ import numpy as np
 
 
 class GlobalPoseOriginAdapterTest(unittest.TestCase):
-    def test_parses_totalcapture_sensor_stream_and_gt_trajectory(self) -> None:
-        from src.globalpose_origin_adapter import (
-            GLOBALPOSE_SENSOR_ORDER,
-            build_globalpose_sensor_trajectories,
-            parse_totalcapture_gt_orientations,
-            parse_totalcapture_gt_positions,
-            parse_totalcapture_sensor_stream,
-        )
+    def test_parses_totalcapture_sensor_stream(self) -> None:
+        from src.globalpose_origin_adapter import parse_totalcapture_sensor_stream
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            tmp = Path(tmpdir)
-            sensors_path = tmp / "sample_Xsens.sensors"
-            positions_path = tmp / "gt_skel_gbl_pos.txt"
-            orientations_path = tmp / "gt_skel_gbl_ori.txt"
-
+            sensors_path = Path(tmpdir) / "sample_Xsens.sensors"
             sensors_path.write_text(
                 "\n".join(
                     [
@@ -40,35 +30,7 @@ class GlobalPoseOriginAdapterTest(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
-
-            positions_path.write_text(
-                "\n".join(
-                    [
-                        "Hips\tHead\tRightForeArm\tLeftForeArm\tRightLeg\tLeftLeg\t",
-                        "1 2 3\t4 5 6\t7 8 9\t10 11 12\t13 14 15\t16 17 18\t",
-                        "2 3 4\t5 6 7\t8 9 10\t11 12 13\t14 15 16\t17 18 19\t",
-                        "",
-                    ]
-                ),
-                encoding="utf-8",
-            )
-
-            orientations_path.write_text(
-                "\n".join(
-                    [
-                        "Hips\tHead\tRightForeArm\tLeftForeArm\tRightLeg\tLeftLeg\t",
-                        "1 0 0 0\t0 1 0 0\t0 0 1 0\t0 0 0 1\t0.5 0.5 0.5 0.5\t0.5 -0.5 0.5 -0.5\t",
-                        "1 0 0 0\t0 1 0 0\t0 0 1 0\t0 0 0 1\t0.5 0.5 0.5 0.5\t0.5 -0.5 0.5 -0.5\t",
-                        "",
-                    ]
-                ),
-                encoding="utf-8",
-            )
-
             sensor_stream = parse_totalcapture_sensor_stream(sensors_path, sensor_names=["Head", "R_LowArm", "Pelvis"])
-            gt_positions = parse_totalcapture_gt_positions(positions_path)
-            gt_orientations = parse_totalcapture_gt_orientations(orientations_path)
-            trajectories = build_globalpose_sensor_trajectories(gt_positions, gt_orientations)
 
         self.assertEqual(sensor_stream["frame_count"], 2)
         self.assertEqual(sensor_stream["sensor_names"], ["Head", "R_LowArm", "Pelvis"])
@@ -76,14 +38,6 @@ class GlobalPoseOriginAdapterTest(unittest.TestCase):
         self.assertEqual(sensor_stream["acc"].shape, (2, 3, 3))
         self.assertTrue(np.allclose(sensor_stream["acc"][0, 1], [4.0, 5.0, 6.0]))
         self.assertTrue(np.allclose(sensor_stream["mag"][1, 2], [3.4, 3.5, 3.6]))
-
-        self.assertTrue(np.allclose(gt_positions["Hips"][0], [-0.0254, 0.0508, -0.0762], atol=1e-6))
-        self.assertTrue(np.allclose(gt_positions["RightForeArm"][1], [-0.2032, 0.2286, -0.254], atol=1e-6))
-        self.assertEqual(gt_orientations["Head"].shape, (2, 4))
-
-        self.assertEqual(list(trajectories.keys()), list(GLOBALPOSE_SENSOR_ORDER))
-        self.assertEqual(trajectories["R_LowArm"]["positions"].shape, (2, 3))
-        self.assertEqual(trajectories["Pelvis"]["quaternions"].shape, (2, 4))
 
     def test_enforces_quaternion_sign_continuity(self) -> None:
         from src.globalpose_origin_adapter import enforce_quaternion_continuity

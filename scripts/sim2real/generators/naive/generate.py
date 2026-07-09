@@ -1,88 +1,55 @@
-"""naive_kinematics generator adapter — file-level contract (M1, implemented).
+"""naive generator — the self-contained reference implementation.
 
-Same CLI and output contract as generators/globalpose/generate.py. The
-deliberately-simple baseline: pure finite-difference kinematics via
-data_generation's ``src.imu.synthesize.synthesize_imu_from_world_trajectory``
-with gravity [0, -9.81, 0] (pipeline world frame), no realism modules — its
-TSTR score anchors the bottom of the generator ranking. Runs in the external
-generator venv.
+Pure finite-difference kinematics: double-difference the sensor world position
+into specific force (minus gravity), rotate into the sensor frame for accel;
+finite-difference the sensor orientation for gyro. Zero magnetometer. No realism
+modules, no randomness — this anchors the bottom of the generator ranking and is
+the canonical example of a protocol-conforming generator.
+
+Depends only on numpy + repo code (``geom`` for math, ``globalpose_origin_adapter``
+for quaternion continuity); no external ``data_generation`` checkout required.
+
+Protocol: see ``docs/imu_generation_protocol.md`` and ``sim2real.gen_common``.
 """
 
 from __future__ import annotations
 
-import argparse
-import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[4]
-# data_generation's `src` is a regular package and shadows the repo's `src`
-# namespace; expose repo code as top-level `sim2real` via REPO_ROOT/src.
-REPO_SRC = REPO_ROOT / "src"
+REPO_SRC = Path(__file__).resolve().parents[4] / "src"
 if str(REPO_SRC) not in sys.path:
     sys.path.insert(0, str(REPO_SRC))
-DATA_GENERATION_ROOT = Path("/home/hrli/data_generation")
-if str(DATA_GENERATION_ROOT) not in sys.path:
-    sys.path.append(str(DATA_GENERATION_ROOT))
 
 import numpy as np
 
 from globalpose_origin_adapter import enforce_quaternion_continuity
-from sim2real.gen_common import load_config, load_motion_and_trajectory, write_synth_stream
+from sim2real import geom
+from sim2real.gen_common import run_generator
 
 GENERATOR = "naive"
+GRAVITY_WORLD = np.array([0.0, -9.81, 0.0], dtype=np.float32)  # pipeline world frame
 
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--motion", required=True)
-    parser.add_argument("--sensor", default="R_LowArm")
-    parser.add_argument("--config", required=True)
-    parser.add_argument("--seed", type=int, required=True)
-    parser.add_argument("--out", required=True)
-    return parser.parse_args()
-
-
-def main() -> None:
-    args = parse_args()
-    config = load_config(Path(args.config))
-    if config.get("generator") != GENERATOR:
-        raise SystemExit(f"config generator {config.get('generator')!r} != {GENERATOR!r}")
-
-    from src.imu.synthesize import synthesize_imu_from_world_trajectory  # data_generation
-
-    np.random.seed(args.seed)
-    motion, positions, quat_wxyz = load_motion_and_trajectory(Path(args.motion), args.sensor)
+def synthesize(motion, positions, quat_wxyz, config, seed):
     fps = int(round(motion.fps))
+    dt = 1.0 / float(fps)
 
-    imu = synthesize_imu_from_world_trajectory(
-        positions=positions,
-        quaternions=quat_wxyz,
-        fps=fps,
-        gravity_world=np.array([0.0, -9.81, 0.0], dtype=np.float32),
-    )
+    specific_force_world = geom.second_difference(positions.astype(np.float32), dt) - GRAVITY_WORLD
+    accel = np.zeros_like(specific_force_world, dtype=np.float32)
+    gyro = np.zeros_like(specific_force_world, dtype=np.float32)
+    for idx in range(positions.shape[0]):
+        accel[idx] = geom.rotate_world_to_local(specific_force_world[idx], quat_wxyz[idx])
+        if idx == 0:
+            continue
+        prev_rot = geom.quaternion_to_matrix(quat_wxyz[idx - 1])
+        curr_rot = geom.quaternion_to_matrix(quat_wxyz[idx])
+        gyro[idx] = geom.rotation_matrix_to_axis_angle(prev_rot.T @ curr_rot) / dt
 
-    quat = enforce_quaternion_continuity(imu["quat"].astype(np.float64))
-    frames = quat.shape[0]
-    mag = np.zeros((frames, 3), dtype=np.float64)
-
-    result = write_synth_stream(
-        Path(args.out),
-        generator=GENERATOR,
-        config=config,
-        config_path=Path(args.config),
-        motion_path=Path(args.motion),
-        seed=args.seed,
-        sensor=args.sensor,
-        fps=float(fps),
-        quat=quat,
-        acc=imu["accel"],
-        gyro=imu["gyro"],
-        mag=mag,
-        extra_meta={},
-    )
-    print(json.dumps(result))
+    quat = enforce_quaternion_continuity(quat_wxyz.astype(np.float64))
+    mag = np.zeros((quat.shape[0], 3), dtype=np.float64)
+    return {"quat": quat, "acc": accel, "gyro": gyro, "mag": mag, "fps": float(fps), "extra_meta": {}}
 
 
 if __name__ == "__main__":
-    main()
+    run_generator(GENERATOR, synthesize)
