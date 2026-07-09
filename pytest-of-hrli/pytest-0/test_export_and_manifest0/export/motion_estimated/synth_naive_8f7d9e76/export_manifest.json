@@ -1,0 +1,20 @@
+{
+  "corpus_root": "/home/hrli/ReID-workspace/ReID_imu_generation/pytest-of-hrli/pytest-0/test_export_and_manifest0/corpus",
+  "imu_stream_file": "synth_naive_8f7d9e76.npz",
+  "motion_source": "motion_estimated",
+  "camera": "cam1",
+  "n_sequences": 2,
+  "skipped_sequences": [
+    "S4_rom3"
+  ],
+  "sequences": [
+    {
+      "sequence_id": "totalcapture_S1_acting1_cam1",
+      "n_frames": 48
+    },
+    {
+      "sequence_id": "totalcapture_S5_walking2_cam1",
+      "n_frames": 48
+    }
+  ]
+}

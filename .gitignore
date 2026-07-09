@@ -8,61 +8,14 @@ __pycache__/
 .venv/
 venv/
 
-data/raw/*
-data/reference/*
-data/interim/*
-data/processed/*
-data/legacy/*
-
+# Working data and results are local-only regenerable artifacts.
+data/*
+!data/README.md
 outputs/*
 !outputs/README.md
-
-# sim2real: the results ledger and reports are small and valuable — keep them
-# in git (heavy artifacts like checkpoints/embeddings below stay ignored).
-!outputs/sim2real/
-outputs/sim2real/*
-!outputs/sim2real/*/
-outputs/sim2real/*/*
-!outputs/sim2real/*/*.md
-!outputs/sim2real/*/*.json
-!outputs/sim2real/*/results.jsonl
-!outputs/sim2real/*/l1/
-outputs/sim2real/*/l1/*
-!outputs/sim2real/*/l1/*.md
-!outputs/sim2real/*/l1/*.json
 
 third-party/*
 !third-party/README.md
 
-# sim2pipe: machine-specific paths stay local; ledger/report conventions
-# mirror sim2real (outputs rules below).
 configs/sim2pipe/paths.yaml
-!outputs/sim2pipe/
-outputs/sim2pipe/*
-!outputs/sim2pipe/*/
-outputs/sim2pipe/*/*
-!outputs/sim2pipe/*/*.md
-!outputs/sim2pipe/*/*.json
-!outputs/sim2pipe/*/results.jsonl
-
-# sim2pipe normalization ablation: keep ledger only
-!outputs/sim2pipe_normabl/
-outputs/sim2pipe_normabl/*
-!outputs/sim2pipe_normabl/*/
-outputs/sim2pipe_normabl/*/*
-!outputs/sim2pipe_normabl/*/results.jsonl
-
-!outputs/sim2pipe_shuffle_floor/
-outputs/sim2pipe_shuffle_floor/*
-!outputs/sim2pipe_shuffle_floor/*/
-outputs/sim2pipe_shuffle_floor/*/*
-!outputs/sim2pipe_shuffle_floor/*/results.jsonl
-
-!outputs/sim2pipe_true_floor/
-outputs/sim2pipe_true_floor/*
-!outputs/sim2pipe_true_floor/*/
-outputs/sim2pipe_true_floor/*/*
-!outputs/sim2pipe_true_floor/*/results.jsonl
-
-# transient run logs
 logs_*.log

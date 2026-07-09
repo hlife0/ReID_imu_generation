@@ -1,0 +1,2 @@
+{"imu_stream": "synth_naive_8f7d9e76", "motion_source": "motion_estimated", "protocol": "tstr", "seed": 0, "val_top1": 0.1}
+{"imu_stream": "synth_naive_8f7d9e76", "motion_source": "motion_estimated", "protocol": "tstr", "seed": 42, "val_top1": 0.1}

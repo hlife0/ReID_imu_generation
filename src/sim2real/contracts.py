@@ -13,8 +13,6 @@ Two rules shape the design:
 2. Provenance by construction. Every artifact directory carries a
    ``manifest.json`` (see ``write_manifest``) recording the resolved config,
    its ``config_hash``, input file hashes, seed, and git commit.
-
-See ``docs/sim2real_design.md`` for the full design.
 """
 
 from __future__ import annotations

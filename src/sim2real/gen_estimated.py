@@ -5,7 +5,7 @@ Turns the clean 21-joint SMPL-X ground-truth skeleton (``motion.npz``) into a
 actually consumes: ``video -> ByteTrack+AlphaPose -> 2D->3D lift (MotionBERT)
 -> H36M-17 3D``. The main matcher never sees pixels — it sees this estimated
 skeleton — so the faithful sim2real proxy is a *degraded* skeleton, not raw
-images. See ``docs/sim2real_findings_v1.md`` and the estskel plan.
+images.
 
 Two independent transforms, applied in order:
 

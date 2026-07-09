@@ -52,7 +52,7 @@ def check_thresholds(thresholds: dict) -> None:
     if missing:
         raise ValueError(
             f"gate thresholds not calibrated (null/missing: {missing}); "
-            "calibrate on a known-good sequence first — see docs/sim2real_design.md §8"
+            "calibrate on a known-good sequence first"
         )
 
 

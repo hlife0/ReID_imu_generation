@@ -1,6 +1,6 @@
 """Frozen subject-level split registry plus leakage checks.
 
-Rules (see docs/sim2real_design.md, "切分与泄漏"):
+Rules:
 
 - Splits are frozen JSON files under ``configs/sim2real/splits/`` and are
   committed to git BEFORE any corpus generation. A frozen split is never

@@ -2,8 +2,7 @@
 
 Ranks the generation pipelines by how useful their synthetic IMU is for a
 real downstream task (train-on-synthetic, test-on-real retrieval) instead of
-signal similarity alone. Design and construction plan:
-``docs/sim2real_design.md``.
+signal similarity alone.
 """
 
 from .contracts import (

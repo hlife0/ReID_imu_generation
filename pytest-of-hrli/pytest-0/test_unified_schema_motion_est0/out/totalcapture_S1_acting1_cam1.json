@@ -1,0 +1,25 @@
+{
+  "video_path": "",
+  "dataset": "totalcapture",
+  "sequence_id": "totalcapture_S1_acting1_cam1",
+  "n_frames": 48,
+  "n_imu": 1,
+  "n_gt": 1,
+  "n_pred": 0,
+  "has_gt": true,
+  "imu_ids": [
+    0
+  ],
+  "gt_person_ids": [
+    0
+  ],
+  "extract_person_ids": [],
+  "sim2pipe": {
+    "imu_source": "real",
+    "imu_stream_file": "real.npz",
+    "motion_source": "motion_estimated",
+    "sensor": "R_LowArm",
+    "fps": 60.0,
+    "imu_motion_lag": 0
+  }
+}
