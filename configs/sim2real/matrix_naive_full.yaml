@@ -1,0 +1,11 @@
+# Naive-only full matrix: baseline, TSTR naive, and real+naive mix.
+benchmark: tc_rlowarm_w24_estskel_v1
+seeds: [0, 42, 123]
+
+cells:
+  - {protocol: trtr, train: [real]}
+  - {protocol: tstr, train: [synth_naive_8f7d9e76]}
+  - {protocol: mix, train: [real, synth_naive_8f7d9e76]}
+
+controls:
+  shuffled_pairs: false
